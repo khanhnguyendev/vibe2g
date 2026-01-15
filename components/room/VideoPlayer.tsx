@@ -6,9 +6,21 @@ import YouTube, { YouTubeEvent, YouTubeProps } from 'react-youtube';
 import screenfull from 'screenfull';
 import { cn } from '@/lib/utils';
 
-export function VideoPlayer() {
+type RoomState = {
+    current_video_id: string;
+    is_playing: boolean;
+    playback_rate: number;
+    last_synced_at: string;
+};
+
+interface VideoPlayerProps {
+    state: RoomState;
+    onUpdate: (updates: Partial<RoomState>) => void;
+}
+
+export function VideoPlayer({ state, onUpdate }: VideoPlayerProps) {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [volume, setVolume] = useState(100); // YouTube API uses 0-100
+    const [volume, setVolume] = useState(100);
     const [isMuted, setIsMuted] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -18,20 +30,50 @@ export function VideoPlayer() {
 
     const progressInterval = useRef<NodeJS.Timeout | null>(null);
 
+    // Sync with remote state
+    useEffect(() => {
+        if (!player) return;
+
+        // Sync play/pause
+        if (state.is_playing) {
+            player.playVideo();
+        } else {
+            player.pauseVideo();
+        }
+
+        // Sync playback rate
+        if (player.getPlaybackRate() !== state.playback_rate) {
+            player.setPlaybackRate(state.playback_rate);
+        }
+
+        // We don't sync seek yet to avoid loops, but we could check last_synced_at
+    }, [state.is_playing, state.playback_rate, player]);
+
     const onReady: YouTubeProps['onReady'] = (event: YouTubeEvent) => {
         setPlayer(event.target);
         setDuration(event.target.getDuration());
         setVolume(event.target.getVolume());
+
+        // Initial sync
+        if (state.is_playing) event.target.playVideo();
+        event.target.setPlaybackRate(state.playback_rate);
     };
 
     const onStateChange: YouTubeProps['onStateChange'] = (event: YouTubeEvent) => {
-        // 1 = Playing, 2 = Paused
-        setIsPlaying(event.data === 1);
+        const newState = event.data === 1;
+        setIsPlaying(newState);
 
         if (event.data === 1) {
             startProgressTimer();
         } else {
             stopProgressTimer();
+        }
+
+        // If change originated from user (not from state sync), notify remote
+        // In a real app, we'd need a way to distinguish user actions from API calls.
+        // For now, let's just push everything.
+        if (newState !== state.is_playing) {
+            onUpdate({ is_playing: newState });
         }
     };
 
@@ -50,13 +92,13 @@ export function VideoPlayer() {
         }
     };
 
-    // Cleanup
     useEffect(() => {
         return () => stopProgressTimer();
     }, []);
 
     const togglePlay = () => {
         if (!player) return;
+        // User clicked play/pause
         if (isPlaying) {
             player.pauseVideo();
         } else {
@@ -94,6 +136,7 @@ export function VideoPlayer() {
         const seekToTime = duration * percentage;
         player.seekTo(seekToTime, true);
         setCurrentTime(seekToTime);
+        // We could also sync this!
     };
 
     const formatTime = (seconds: number) => {
@@ -109,7 +152,7 @@ export function VideoPlayer() {
         <div ref={containerRef} className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-2xl shadow-violet-900/20 group ring-1 ring-white/10">
 
             <YouTube
-                videoId="Hu4Yvq-g7_Y"
+                videoId={state.current_video_id}
                 className="absolute inset-0 w-full h-full"
                 iframeClassName="w-full h-full"
                 opts={{
@@ -117,7 +160,7 @@ export function VideoPlayer() {
                     width: '100%',
                     playerVars: {
                         autoplay: 0,
-                        controls: 0, // Hide native controls
+                        controls: 0,
                         modestbranding: 1,
                         rel: 0,
                     },
@@ -192,7 +235,7 @@ export function VideoPlayer() {
                                         key={rate}
                                         onClick={() => {
                                             if (player) {
-                                                player.setPlaybackRate(rate);
+                                                onUpdate({ playback_rate: rate });
                                                 setShowSettings(false);
                                             }
                                         }}
