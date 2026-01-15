@@ -79,7 +79,11 @@ export default function RoomPage({
 
     return (
         <div className="h-screen bg-brand-dark flex flex-col overflow-hidden">
-            <Navbar />
+            <Navbar
+                roomName={roomName}
+                userDisplayName={userDisplayName}
+                viewerCount={viewerCount}
+            />
 
             {/* Main Layout */}
             <main className="flex-1 flex flex-col pt-24 pb-4 px-4 sm:px-6 lg:px-8 max-w-[1920px] mx-auto w-full min-h-0">
@@ -102,29 +106,13 @@ export default function RoomPage({
                             />
                         </div>
 
-                        {/* Video Info / Queue */}
-                        <div className="flex flex-col gap-4 min-h-0">
-                            <div className="glass rounded-2xl p-6 shrink-0">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-white mb-2">{roomName}</h2>
-                                        <p className="text-slate-400">Viewing as <span className="text-violet-400 font-semibold">{userDisplayName}</span></p>
-                                    </div>
-                                    <div className="flex items-center gap-2 px-3 py-1.5 glass rounded-full border border-white/10">
-                                        <Users className="h-4 w-4 text-violet-400" />
-                                        <span className="text-sm font-bold text-white">{viewerCount} online</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Queue Component */}
-                            <div className="min-h-0">
-                                <Queue
-                                    items={queue}
-                                    onAdd={handleAddVideo}
-                                    onRemove={removeFromQueue}
-                                />
-                            </div>
+                        {/* Queue Component */}
+                        <div className="flex-1 min-h-0">
+                            <Queue
+                                items={queue}
+                                onAdd={handleAddVideo}
+                                onRemove={removeFromQueue}
+                            />
                         </div>
                     </div>
 
