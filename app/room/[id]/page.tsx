@@ -10,7 +10,7 @@ import { SearchBar } from '@/components/room/SearchBar';
 import { SearchResults } from '@/components/room/SearchResults';
 import { Users, Eye, Music2 } from 'lucide-react';
 import { EntryModal } from '@/components/room/EntryModal';
-import { extractVideoId, fetchOEmbedInfo, searchYouTube } from '@/lib/youtube';
+import { extractVideoId, fetchVideoDetails, searchYouTube } from '@/lib/youtube';
 
 export default function RoomPage({
     params: paramsPromise,
@@ -74,7 +74,7 @@ export default function RoomPage({
         const videoId = extractVideoId(query);
 
         if (videoId) {
-            const info = await fetchOEmbedInfo(videoId);
+            const info = await fetchVideoDetails(videoId);
             if (info) {
                 setSearchResults([info]);
                 setIsSearching(false);
