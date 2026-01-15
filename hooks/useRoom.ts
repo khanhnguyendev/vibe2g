@@ -162,10 +162,15 @@ export function useRoom(roomId: string, userName: string) {
 
     // Actions
     const updateVideoState = async (updates: Partial<RoomState>) => {
-        await supabase.from('rooms').update({
+        console.log('useRoom: updateVideoState called', updates);
+        const { error } = await supabase.from('rooms').update({
             ...updates,
             last_synced_at: new Date().toISOString()
         }).eq('id', roomId);
+
+        if (error) {
+            console.error('useRoom: Failed to update video state', error);
+        }
     };
 
     const transferHost = async (newHostId: string) => {

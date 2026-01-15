@@ -72,10 +72,9 @@ export function Queue({ items, nowPlaying, onPlay, onRemove, isHost }: QueueProp
                     items.map((video, idx) => (
                         <div
                             key={video.id}
-                            onClick={() => isHost && onPlay(video)}
+                            onClick={() => onPlay(video)}
                             className={cn(
-                                "group flex gap-3 p-2 rounded-xl transition-colors pr-4",
-                                isHost ? "hover:bg-white/5 cursor-pointer" : "cursor-default"
+                                "group flex gap-3 p-2 rounded-xl transition-colors pr-4 cursor-pointer hover:bg-white/5"
                             )}
                         >
                             {/* Thumbnail */}
