@@ -99,6 +99,15 @@ export default function RoomPage({
         setSearchResults([]); // Clear search after adding
     };
 
+    const handlePlayFromQueue = (video: any) => {
+        if (!isHost) return;
+        updateVideoState({
+            current_video_id: video.video_id,
+            is_playing: true,
+        });
+        removeFromQueue(video.id);
+    };
+
     return (
         <div className="h-screen bg-brand-dark flex flex-col overflow-hidden">
             <Navbar
@@ -136,8 +145,9 @@ export default function RoomPage({
                         <div className="flex-1 min-h-0">
                             <Queue
                                 items={queue}
-                                onAdd={handleAddVideo}
+                                onPlay={handlePlayFromQueue}
                                 onRemove={removeFromQueue}
+                                isHost={isHost}
                             />
                         </div>
                     </div>
