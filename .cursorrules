@@ -1,0 +1,4 @@
+# General Rules
+- Each significant fix, change, or feature must be committed immediately before proceeding to the next action or feature.
+- Follow the established design system (glassmorphism, dark theme, violet/pink accents).
+- Maintain real-time synchronization integrity.
