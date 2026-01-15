@@ -66,7 +66,7 @@ export function ChatSidebar() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 min-h-0">
                 {messages.map((msg) => (
                     <div key={msg.id} className="flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div className={cn("h-8 w-8 shrink-0 rounded-full ring-2 ring-brand-dark flex items-center justify-center text-xs font-bold text-white shadow-lg", msg.color)}>

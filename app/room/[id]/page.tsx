@@ -10,7 +10,7 @@ export default function RoomPage({ params }: { params: { id: string } }) {
 
             {/* Main Layout */}
             <main className="flex-1 pt-24 pb-8 px-4 sm:px-6 lg:px-8 max-w-[1920px] mx-auto w-full">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-8rem)]">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:h-[calc(100vh-8rem)] h-auto">
 
                     {/* Left Column - Video Player (Takes 3 cols) */}
                     <div className="lg:col-span-3 flex flex-col gap-4">
