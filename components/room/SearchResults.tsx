@@ -70,17 +70,17 @@ export function SearchResults({ results, onAdd, onPreview, onClear, isLoading, e
                             </button>
                         )}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                         {results.map((video) => (
                             <motion.div
                                 layout
                                 initial={{ scale: 0.95, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 key={video.id}
-                                className="group relative flex gap-4 p-4 glass rounded-2xl hover:bg-white/10 transition-all border border-white/5 cursor-pointer"
+                                className="group relative flex gap-3 p-3 glass rounded-2xl hover:bg-white/10 transition-all border border-white/5 cursor-pointer"
                             >
                                 {/* Thumbnail */}
-                                <div className="relative h-24 w-40 shrink-0 rounded-xl overflow-hidden bg-slate-800 shadow-lg">
+                                <div className="relative h-20 w-32 shrink-0 rounded-xl overflow-hidden bg-slate-800 shadow-lg">
                                     <img
                                         src={video.thumbnail}
                                         alt={video.title}
@@ -89,9 +89,9 @@ export function SearchResults({ results, onAdd, onPreview, onClear, isLoading, e
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                         <button
                                             onClick={(e) => { e.stopPropagation(); onPreview(video); }}
-                                            className="p-2 bg-white/20 backdrop-blur-md rounded-full hover:bg-white/40 transition-colors"
+                                            className="p-1.5 bg-white/20 backdrop-blur-md rounded-full hover:bg-white/40 transition-colors"
                                         >
-                                            <Play className="h-4 w-4 text-white fill-white" />
+                                            <Play className="h-3.5 w-3.5 text-white fill-white" />
                                         </button>
                                     </div>
                                     <span className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/80 text-[10px] font-bold text-white rounded">
