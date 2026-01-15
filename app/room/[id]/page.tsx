@@ -5,7 +5,7 @@ import { VideoPlayer } from '@/components/room/VideoPlayer';
 import { ChatSidebar } from '@/components/room/ChatSidebar';
 import { Queue } from '@/components/room/Queue';
 import { useRoom } from '@/hooks/useRoom';
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { SearchBar } from '@/components/room/SearchBar';
 import { SearchResults } from '@/components/room/SearchResults';
 import { Users } from 'lucide-react';
@@ -15,12 +15,28 @@ export default function RoomPage({
     searchParams
 }: {
     params: { id: string },
-    searchParams: { name?: string }
+    searchParams: { name?: string, username?: string }
 }) {
     const roomName = searchParams.name || `Room: ${params.id}`;
 
-    // Simple persistent guest name for this session
-    const guestName = useMemo(() => `Guest ${Math.floor(Math.random() * 9000) + 1000}`, []);
+    // Resolve user name: URL param -> LocalStorage -> Random Guest
+    const [userDisplayName, setUserDisplayName] = useState<string>('');
+
+    useEffect(() => {
+        const urlUsername = searchParams.username;
+        const storedUsername = localStorage.getItem('vibe2g_username');
+
+        if (urlUsername) {
+            setUserDisplayName(urlUsername);
+            localStorage.setItem('vibe2g_username', urlUsername); // Sync to storage
+        } else if (storedUsername) {
+            setUserDisplayName(storedUsername);
+        } else {
+            const randomName = `Guest ${Math.floor(Math.random() * 9000) + 1000}`;
+            setUserDisplayName(randomName);
+            localStorage.setItem('vibe2g_username', randomName);
+        }
+    }, [searchParams.username]);
 
     const {
         videoState,
@@ -31,7 +47,7 @@ export default function RoomPage({
         sendMessage,
         addToQueue,
         removeFromQueue
-    } = useRoom(params.id, guestName);
+    } = useRoom(params.id, userDisplayName);
 
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [previewVideo, setPreviewVideo] = useState<any>(null);
@@ -52,7 +68,7 @@ export default function RoomPage({
             video_id: video.id,
             title: video.title,
             thumbnail: video.thumbnail,
-            added_by: guestName
+            added_by: userDisplayName
         });
         setSearchResults([]); // Clear search after adding
     };
@@ -88,7 +104,7 @@ export default function RoomPage({
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <h2 className="text-2xl font-bold text-white mb-2">{roomName}</h2>
-                                        <p className="text-slate-400">Viewing as <span className="text-violet-400 font-semibold">{guestName}</span></p>
+                                        <p className="text-slate-400">Viewing as <span className="text-violet-400 font-semibold">{userDisplayName}</span></p>
                                     </div>
                                     <div className="flex items-center gap-2 px-3 py-1.5 glass rounded-full border border-white/10">
                                         <Users className="h-4 w-4 text-violet-400" />
@@ -113,7 +129,7 @@ export default function RoomPage({
                         <ChatSidebar
                             messages={messages}
                             onSendMessage={sendMessage}
-                            userName={guestName}
+                            userName={userDisplayName}
                         />
                     </div>
 
