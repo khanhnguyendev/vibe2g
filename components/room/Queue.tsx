@@ -13,18 +13,52 @@ export type QueueItem = {
 
 interface QueueProps {
     items: QueueItem[];
+    nowPlaying?: {
+        video_id: string | null;
+        title: string | null;
+        thumbnail: string | null;
+    };
     onPlay: (item: QueueItem) => void;
     onRemove: (id: number) => void;
     isHost?: boolean;
 }
 
-export function Queue({ items, onPlay, onRemove, isHost }: QueueProps) {
+export function Queue({ items, nowPlaying, onPlay, onRemove, isHost }: QueueProps) {
     return (
-        <div className="flex-1 glass rounded-2xl p-6 flex flex-col h-full min-h-[300px]">
+        <div className="flex-1 glass rounded-2xl p-6 flex flex-col h-full min-h-[400px]">
+            {/* Now Playing Section */}
+            {nowPlaying?.video_id && (
+                <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                        <div className="h-1.5 w-1.5 rounded-full bg-violet-500 animate-pulse" />
+                        <h2 className="text-xs font-bold text-violet-400 uppercase tracking-wider">Now Playing</h2>
+                    </div>
+                    <div className="relative group p-3 rounded-2xl bg-violet-500/10 border border-violet-500/20 shadow-lg shadow-violet-900/10">
+                        <div className="flex gap-3">
+                            <div className="relative h-16 w-28 shrink-0 rounded-lg overflow-hidden bg-slate-800 shadow-md">
+                                {nowPlaying.thumbnail ? (
+                                    <img src={nowPlaying.thumbnail} alt={nowPlaying.title || ''} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-violet-900/20">
+                                        <Play className="h-5 w-5 text-violet-400" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex flex-col justify-center min-w-0">
+                                <h3 className="text-sm font-bold text-white line-clamp-2 leading-tight">
+                                    {nowPlaying.title || 'Untitled Video'}
+                                </h3>
+                                <p className="text-[10px] text-violet-400 font-medium mt-1">SESSIONS ACTIVE</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-white">Up Next</h2>
                 <span className="text-xs font-medium px-2 py-1 rounded-full bg-white/10 text-slate-300">
-                    {items.length} videos queued
+                    {items.length} {items.length === 1 ? 'video' : 'videos'} queued
                 </span>
             </div>
 

@@ -158,6 +158,11 @@ export default function RoomPage({
                         <div className="flex-1 min-h-0">
                             <Queue
                                 items={queue}
+                                nowPlaying={{
+                                    video_id: videoState.current_video_id,
+                                    title: videoState.current_title,
+                                    thumbnail: videoState.current_thumbnail,
+                                }}
                                 onPlay={handlePlayFromQueue}
                                 onRemove={removeFromQueue}
                                 isHost={isHost}
