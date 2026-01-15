@@ -56,7 +56,8 @@ export default function RoomPage({
         sendMessage,
         addToQueue,
         removeFromQueue,
-        transferHost
+        transferHost,
+        currentUserId
     } = useRoom(params.id, userDisplayName || 'Joining...');
 
     const queueRef = useRef(queue);
@@ -68,6 +69,24 @@ export default function RoomPage({
     const [previewVideo, setPreviewVideo] = useState<any>(null);
     const [isSearching, setIsSearching] = useState(false);
     const [searchError, setSearchError] = useState<string | null>(null);
+
+    const getUserColor = (name: string) => {
+        const colors = [
+            'bg-violet-500',
+            'bg-emerald-500',
+            'bg-blue-500',
+            'bg-pink-500',
+            'bg-orange-500',
+            'bg-indigo-500',
+            'bg-cyan-500',
+            'bg-rose-500',
+        ];
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return colors[Math.abs(hash) % colors.length];
+    };
 
     const handleSearch = async (query: string) => {
         setIsSearching(true);
@@ -231,6 +250,7 @@ export default function RoomPage({
                             messages={messages}
                             onSendMessage={sendMessage}
                             userName={userDisplayName}
+                            currentUserId={currentUserId}
                             activeUsers={activeUsers}
                             isHost={isHost}
                             hostId={hostId}

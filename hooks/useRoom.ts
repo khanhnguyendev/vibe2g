@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 
 type Message = {
     id: number;
+    user_id: string;
     user_name: string;
     content: string;
     color: string;
@@ -244,9 +245,10 @@ export function useRoom(roomId: string, userName: string) {
     };
 
     const sendMessage = async (content: string) => {
-        if (!content.trim()) return;
+        if (!content.trim() || !currentUserId) return;
         await supabase.from('messages').insert({
             room_id: roomId,
+            user_id: currentUserId,
             user_name: userName,
             content: content,
             color: 'bg-violet-500',
@@ -322,6 +324,7 @@ export function useRoom(roomId: string, userName: string) {
         sendMessage,
         addToQueue,
         removeFromQueue,
-        transferHost
+        transferHost,
+        currentUserId
     };
 }
