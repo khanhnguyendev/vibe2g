@@ -3,6 +3,7 @@
 import { Play, Pause, Volume2, Maximize, SkipForward, Settings, VolumeX } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import YouTube, { YouTubeEvent, YouTubeProps } from 'react-youtube';
+import screenfull from 'screenfull';
 import { cn } from '@/lib/utils';
 
 export function VideoPlayer() {
@@ -12,6 +13,8 @@ export function VideoPlayer() {
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [player, setPlayer] = useState<any>(null);
+    const [showSettings, setShowSettings] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const progressInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -103,7 +106,7 @@ export function VideoPlayer() {
     const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
     return (
-        <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-2xl shadow-violet-900/20 group ring-1 ring-white/10">
+        <div ref={containerRef} className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-2xl shadow-violet-900/20 group ring-1 ring-white/10">
 
             <YouTube
                 videoId="Hu4Yvq-g7_Y"
@@ -173,11 +176,42 @@ export function VideoPlayer() {
                         </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                    <div className="flex items-center gap-2 relative">
+                        <button
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                            onClick={() => setShowSettings(!showSettings)}
+                        >
                             <Settings className="h-5 w-5" />
                         </button>
-                        <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+
+                        {showSettings && (
+                            <div className="absolute bottom-12 right-0 w-40 bg-black/90 border border-white/10 text-white backdrop-blur-xl p-2 rounded-xl shadow-xl z-20">
+                                <div className="text-xs font-semibold text-slate-400 mb-2 px-2">Playback Speed</div>
+                                {[0.5, 1, 1.25, 1.5, 2].map((rate) => (
+                                    <button
+                                        key={rate}
+                                        onClick={() => {
+                                            if (player) {
+                                                player.setPlaybackRate(rate);
+                                                setShowSettings(false);
+                                            }
+                                        }}
+                                        className="w-full text-left px-2 py-1.5 hover:bg-white/10 rounded text-sm flex items-center justify-between group/rate"
+                                    >
+                                        {rate}x
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        <button
+                            onClick={() => {
+                                if (screenfull.isEnabled && containerRef.current) {
+                                    screenfull.toggle(containerRef.current);
+                                }
+                            }}
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                        >
                             <Maximize className="h-5 w-5" />
                         </button>
                     </div>
