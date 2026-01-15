@@ -80,7 +80,7 @@ export function SearchResults({ results, onAdd, onPreview, onClear, isLoading, e
                                 className="group relative flex gap-3 p-3 glass rounded-2xl hover:bg-white/10 transition-all border border-white/5 cursor-pointer"
                             >
                                 {/* Thumbnail */}
-                                <div className="relative h-20 w-32 shrink-0 rounded-xl overflow-hidden bg-slate-800 shadow-lg">
+                                <div className="relative h-24 w-36 shrink-0 rounded-xl overflow-hidden bg-slate-800 shadow-lg">
                                     <img
                                         src={video.thumbnail}
                                         alt={video.title}
