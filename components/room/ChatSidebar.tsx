@@ -90,7 +90,7 @@ export function ChatSidebar({
             {view === 'chat' ? (
                 <>
                     {/* Messages */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 min-h-0">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar min-h-0">
                         {messages.map((msg) => (
                             <div key={msg.id} className="flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
                                 <div className={cn("h-8 w-8 shrink-0 rounded-full ring-2 ring-brand-dark flex items-center justify-center text-xs font-bold text-white shadow-lg", msg.color || 'bg-violet-500')}>
@@ -141,7 +141,7 @@ export function ChatSidebar({
                     </form>
                 </>
             ) : (
-                <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-0">
+                <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-0 custom-scrollbar">
                     <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4 px-2">Active Participants</div>
                     {activeUsers.map((user) => (
                         <div key={user.id} className="group flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-all">
