@@ -4,14 +4,21 @@
   --color-brand-dark: #0a0a0f;
   --color-brand-violet: #7c3aed;
   --color-brand-pink: #db2777;
-  
+
   --font-sans: 'Inter', system-ui, sans-serif;
-  
+
   --animate-float: float 6s ease-in-out infinite;
-  
+
   @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
   }
 }
 
@@ -33,4 +40,45 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-sans);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--color-brand-violet), var(--color-brand-pink));
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-violet);
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-violet) rgba(255, 255, 255, 0.02);
+}
+
+@utility custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
 }
