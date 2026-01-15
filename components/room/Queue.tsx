@@ -1,9 +1,9 @@
 'use client';
 
-import { Play } from 'lucide-react';
+import { Play, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type QueueItem = {
+export type QueueItem = {
     id: number;
     video_id: string;
     title: string;
@@ -14,9 +14,10 @@ type QueueItem = {
 interface QueueProps {
     items: QueueItem[];
     onAdd: (item: any) => void;
+    onRemove: (id: number) => void;
 }
 
-export function Queue({ items, onAdd }: QueueProps) {
+export function Queue({ items, onAdd, onRemove }: QueueProps) {
     return (
         <div className="flex-1 glass rounded-2xl p-6 flex flex-col h-full min-h-[300px]">
             <div className="flex items-center justify-between mb-4">
@@ -36,7 +37,7 @@ export function Queue({ items, onAdd }: QueueProps) {
                     items.map((video, idx) => (
                         <div key={video.id} className="group flex gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer pr-4">
                             {/* Thumbnail */}
-                            <div className={cn("relative h-20 w-32 shrink-0 rounded-lg overflow-hidden bg-slate-800")}>
+                            <div className={cn("relative h-20 w-32 shrink-0 rounded-lg overflow-hidden bg-slate-800 shadow-md")}>
                                 {video.thumbnail ? (
                                     <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
                                 ) : (
@@ -50,12 +51,20 @@ export function Queue({ items, onAdd }: QueueProps) {
                             </div>
 
                             {/* Info */}
-                            <div className="flex flex-col justify-center min-w-0">
+                            <div className="flex flex-col justify-center min-w-0 flex-1">
                                 <h3 className="text-sm font-medium text-slate-200 line-clamp-2 leading-tight group-hover:text-violet-400 transition-colors">
                                     {video.title}
                                 </h3>
                                 <p className="text-xs text-slate-500 mt-1">Added by {video.added_by}</p>
                             </div>
+
+                            {/* Actions */}
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onRemove(video.id); }}
+                                className="opacity-0 group-hover:opacity-100 p-2 hover:bg-red-500/20 hover:text-red-400 text-slate-500 rounded-lg transition-all self-center"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </button>
                         </div>
                     ))
                 )}

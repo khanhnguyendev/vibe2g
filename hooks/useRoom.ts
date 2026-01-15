@@ -20,6 +20,8 @@ type QueueItem = {
     added_by: string;
 };
 
+type NewQueueItem = Omit<QueueItem, 'id'>;
+
 type RoomState = {
     current_video_id: string;
     is_playing: boolean;
@@ -37,40 +39,41 @@ export function useRoom(roomId: string, userName: string) {
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [queue, setQueue] = useState<QueueItem[]>([]);
+    const [viewerCount, setViewerCount] = useState(1);
     const channelRef = useRef<RealtimeChannel | null>(null);
 
     // Initial Fetch & Subscribe
     useEffect(() => {
         if (!roomId) return;
 
+        const channel = supabase.channel(`room:${roomId}`, {
+            config: {
+                presence: {
+                    key: userName,
+                },
+            },
+        });
+
         const fetchInitialState = async () => {
-            // Get Room
-            const { data: room } = await supabase.from('rooms').select('*').eq('id', roomId).single();
-            if (room) {
-                setVideoState({
-                    current_video_id: room.current_video_id || 'Hu4Yvq-g7_Y',
-                    is_playing: room.is_playing,
-                    playback_rate: room.playback_rate,
-                    last_synced_at: room.last_synced_at,
-                });
-            } else {
-                // Return or handle room not found (create it?)
-                // For now assuming existing room or handled by page creation
-            }
-
-            // Get Messages
-            const { data: thread } = await supabase.from('messages').select('*').eq('room_id', roomId).order('created_at', { ascending: true });
-            if (thread) setMessages(thread as any);
-
-            // Get Queue
-            const { data: q } = await supabase.from('queue').select('*').eq('room_id', roomId).order('created_at', { ascending: true });
-            if (q) setQueue(q as any);
+            // ... (keep same fetch state logic)
+            // Note: I'll include the logic below for completeness in the chunk
         };
 
-        fetchInitialState();
+        // Presence Logic
+        (channel as any)
+            .on('presence', { event: 'sync' }, () => {
+                const newState = channel.presenceState();
+                setViewerCount(Object.keys(newState).length);
+            })
+            .on('presence', { event: 'join', filter: { event: 'sync' } }, ({ newPresences }: any) => {
+                console.log('User joined', newPresences);
+            })
+            .on('presence', { event: 'leave', filter: { event: 'sync' } }, ({ leftPresences }: any) => {
+                console.log('User left', leftPresences);
+            });
 
-        // Realtime Subscription
-        const channel = supabase.channel(`room:${roomId}`)
+        // Postgres Changes
+        channel
             .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms', filter: `id=eq.${roomId}` }, (payload: any) => {
                 const newRow = payload.new;
                 setVideoState({
@@ -84,20 +87,43 @@ export function useRoom(roomId: string, userName: string) {
                 setMessages(prev => [...prev, payload.new as Message]);
             })
             .on('postgres_changes', { event: '*', schema: 'public', table: 'queue', filter: `room_id=eq.${roomId}` }, () => {
-                // Refresh queue completely on any change to ensure order/sync
                 supabase.from('queue').select('*').eq('room_id', roomId).order('created_at', { ascending: true })
                     .then(({ data }) => {
                         if (data) setQueue(data as any);
                     });
             })
-            .subscribe();
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    await channel.track({ online_at: new Date().toISOString() });
+                }
+            });
 
         channelRef.current = channel;
+
+        // Fetch initial state logic (wrapped to avoid closure issues)
+        const fetchState = async () => {
+            const { data: room } = await supabase.from('rooms').select('*').eq('id', roomId).single();
+            if (room) {
+                setVideoState({
+                    current_video_id: room.current_video_id || 'Hu4Yvq-g7_Y',
+                    is_playing: room.is_playing,
+                    playback_rate: room.playback_rate,
+                    last_synced_at: room.last_synced_at,
+                });
+            }
+            const { data: thread } = await supabase.from('messages').select('*').eq('room_id', roomId).order('created_at', { ascending: true });
+            if (thread) setMessages(thread as any);
+            const { data: q } = await supabase.from('queue').select('*').eq('room_id', roomId).order('created_at', { ascending: true });
+            if (q) setQueue(q as any);
+        };
+        fetchState();
 
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [roomId]);
+    }, [roomId, userName]);
+
+    // ... (rest of actions)
 
     // Actions
     const updateVideoState = async (updates: Partial<RoomState>) => {
@@ -117,7 +143,7 @@ export function useRoom(roomId: string, userName: string) {
         });
     };
 
-    const addToQueue = async (video: QueueItem) => {
+    const addToQueue = async (video: NewQueueItem) => {
         await supabase.from('queue').insert({
             room_id: roomId,
             video_id: video.video_id,
@@ -127,12 +153,18 @@ export function useRoom(roomId: string, userName: string) {
         });
     };
 
+    const removeFromQueue = async (id: number) => {
+        await supabase.from('queue').delete().eq('id', id);
+    };
+
     return {
         videoState,
         messages,
         queue,
+        viewerCount,
         updateVideoState,
         sendMessage,
-        addToQueue
+        addToQueue,
+        removeFromQueue
     };
 }
