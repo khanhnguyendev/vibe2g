@@ -4,6 +4,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { ArrowRight, Users, Zap, Shield, Play } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { EntryModal } from '@/components/room/EntryModal';
 import { supabase } from '@/lib/supabase';
 
@@ -25,24 +26,34 @@ export default function Home() {
     params.set('username', username);
 
     if (type === 'join') {
+      toast.success(`Joining room ${roomId}...`);
       router.push(`/room/${roomId}?${params.toString()}`);
     } else {
       const generatedId = Math.random().toString(36).substring(2, 9);
 
-      // Create room in database with host_id
-      const { error } = await supabase.from('rooms').insert({
-        id: generatedId,
-        name: roomName || `Room: ${generatedId}`,
-        host_id: userId, // Set creator as host
+      const createRoomPromise = (async () => {
+        const { error } = await supabase.from('rooms').insert({
+          id: generatedId,
+          name: roomName || `Room: ${generatedId}`,
+          host_id: userId,
+        });
+        if (error) throw error;
+        return { generatedId, roomName };
+      })();
+
+      toast.promise(createRoomPromise, {
+        loading: 'Creating your vibe room...',
+        success: (data) => `Room "${data.roomName || data.generatedId}" created!`,
+        error: 'Failed to create room'
       });
 
-      if (error) {
-        console.error('Failed to create room:', error);
-        // Fallback or alert? For now just log.
+      try {
+        await createRoomPromise;
+        if (roomName) params.set('name', roomName);
+        router.push(`/room/${generatedId}?${params.toString()}`);
+      } catch (err) {
+        console.error('Room creation error:', err);
       }
-
-      if (roomName) params.set('name', roomName);
-      router.push(`/room/${generatedId}?${params.toString()}`);
     }
   };
 

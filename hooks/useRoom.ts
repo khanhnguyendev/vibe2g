@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { RealtimeChannel } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
 type Message = {
     id: number;
@@ -33,6 +34,7 @@ type RoomState = {
     is_playing: boolean;
     playback_rate: number;
     last_synced_at: string;
+    host_id: string | null;
 };
 
 export function useRoom(roomId: string, userName: string) {
@@ -45,6 +47,7 @@ export function useRoom(roomId: string, userName: string) {
         is_playing: false,
         playback_rate: 1,
         last_synced_at: new Date().toISOString(),
+        host_id: null,
     });
 
     const [messages, setMessages] = useState<Message[]>([]);
@@ -92,6 +95,7 @@ export function useRoom(roomId: string, userName: string) {
                     is_playing: room.is_playing,
                     playback_rate: room.playback_rate,
                     last_synced_at: room.last_synced_at,
+                    host_id: room.host_id,
                 });
                 setHostId(room.host_id);
             }
@@ -103,14 +107,24 @@ export function useRoom(roomId: string, userName: string) {
 
         // Presence Logic
         (channel as any)
+            .on('presence', { event: 'join' }, ({ key, newPresences }: any) => {
+                newPresences.forEach((p: any) => {
+                    if (p.user_id !== currentUserId) {
+                        toast.info(`${p.user_name || 'Someone'} joined the room`, {
+                            icon: '👋',
+                        });
+                    }
+                });
+            })
+            .on('presence', { event: 'leave' }, ({ key, leftPresences }: any) => {
+                leftPresences.forEach((p: any) => {
+                    toast.info(`${p.user_name || 'Someone'} left the room`, {
+                        icon: '🚪',
+                    });
+                });
+            })
             .on('presence', { event: 'sync' }, () => {
                 const newState = channel.presenceState();
-                const users = Object.values(newState).flat().map((p: any) => ({
-                    id: p.presence_ref, // Using presence_ref or we can add custom payload
-                    name: p.user_name || 'Guest',
-                    userId: p.user_id
-                }));
-                // Presence state keys are our currentUserId
                 const active = Object.keys(newState).map(key => {
                     const presence = newState[key][0] as any;
                     return {
@@ -136,18 +150,37 @@ export function useRoom(roomId: string, userName: string) {
                     is_playing: newRow.is_playing,
                     playback_rate: newRow.playback_rate,
                     last_synced_at: newRow.last_synced_at,
+                    host_id: newRow.host_id,
                 });
+                if (newRow.host_id !== hostId && newRow.host_id) {
+                    const newHost = activeUsers.find(u => u.id === newRow.host_id);
+                    if (newHost) {
+                        toast.info(`${newHost.name} is now the host`, { icon: '👑' });
+                    }
+                }
                 setHostId(newRow.host_id);
             })
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` }, (payload: any) => {
                 setMessages(prev => [...prev, payload.new as Message]);
             })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'queue', filter: `room_id=eq.${roomId}` }, (payload) => {
-                console.log('useRoom: Queue changed!', payload);
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'queue', filter: `room_id=eq.${roomId}` }, (payload) => {
+                const newItem = payload.new as any;
+                if (newItem.added_by !== userName) {
+                    toast.success(`${newItem.added_by} added "${newItem.title}" to queue`, {
+                        icon: '🎵',
+                    });
+                }
                 supabase.from('queue').select('*').eq('room_id', roomId).order('created_at', { ascending: true })
                     .then(({ data }) => {
                         if (data) {
-                            console.log('useRoom: Refetched queue', data.length);
+                            setQueue(data as any);
+                        }
+                    });
+            })
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'queue', filter: `room_id=eq.${roomId}` }, (payload) => {
+                supabase.from('queue').select('*').eq('room_id', roomId).order('created_at', { ascending: true })
+                    .then(({ data }) => {
+                        if (data) {
                             setQueue(data as any);
                         }
                     });
@@ -185,7 +218,18 @@ export function useRoom(roomId: string, userName: string) {
 
     const transferHost = async (newHostId: string) => {
         if (!isHost) return;
-        await supabase.from('rooms').update({ host_id: newHostId }).eq('id', roomId);
+        const newHost = activeUsers.find(u => u.id === newHostId);
+        const promise = (async () => {
+            const { error } = await supabase.from('rooms').update({ host_id: newHostId }).eq('id', roomId);
+            if (error) throw error;
+        })();
+
+        toast.promise(promise, {
+            loading: 'Transferring host...',
+            success: `Host transferred to ${newHost?.name || 'new user'}`,
+            error: 'Failed to transfer host'
+        });
+        await promise;
     };
 
     const sendMessage = async (content: string) => {
@@ -199,36 +243,51 @@ export function useRoom(roomId: string, userName: string) {
     };
 
     const addToQueue = async (video: NewQueueItem) => {
-        console.log('useRoom: addToQueue start', video);
-        const insertData = {
-            room_id: roomId,
-            video_id: video.video_id,
-            title: video.title,
-            thumbnail: video.thumbnail,
-            added_by: userName,
-            channel_title: video.channel_title,
-            view_count: video.view_count,
-        };
-        console.log('useRoom: Attempting insert', insertData);
+        const promise = (async () => {
+            const insertData = {
+                room_id: roomId,
+                video_id: video.video_id,
+                title: video.title,
+                thumbnail: video.thumbnail,
+                added_by: userName,
+                channel_title: video.channel_title,
+                view_count: video.view_count,
+            };
 
-        const { data, error } = await supabase.from('queue').insert(insertData).select().single();
+            const { data, error } = await supabase.from('queue').insert(insertData).select().single();
 
-        if (error) {
-            console.error('useRoom: Failed to add to queue - SQL error', error);
-        } else if (data) {
-            console.log('useRoom: Successfully added to queue DB', data);
-            // Optimistic update to avoid waiting for Realtime
-            setQueue(prev => {
-                if (prev.find(item => item.id === data.id)) return prev;
-                return [...prev, data as QueueItem];
-            });
-        } else {
-            console.warn('useRoom: insert succeeded but returned no data');
-        }
+            if (error) throw error;
+            if (data) {
+                setQueue(prev => {
+                    if (prev.find(item => item.id === data.id)) return prev;
+                    return [...prev, data as QueueItem];
+                });
+                return data;
+            }
+        })();
+
+        toast.promise(promise, {
+            loading: 'Adding to queue...',
+            success: (data: any) => `Added "${data.title}" to queue`,
+            error: 'Failed to add to queue'
+        });
     };
 
     const removeFromQueue = async (id: number) => {
-        await supabase.from('queue').delete().eq('id', id);
+        const itemToRemove = queue.find(item => item.id === id);
+        const promise = (async () => {
+            const { error } = await supabase.from('queue').delete().eq('id', id);
+            if (error) throw error;
+        })();
+
+        if (itemToRemove) {
+            toast.promise(promise, {
+                loading: 'Removing...',
+                success: `Removed "${itemToRemove.title}" from queue`,
+                error: 'Failed to remove from queue'
+            });
+        }
+        await promise;
     };
 
     return {
