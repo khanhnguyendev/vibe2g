@@ -140,70 +140,45 @@ export default function RoomPage({
 
             {/* Main Layout */}
             <main className="flex-1 flex flex-col pt-24 pb-4 px-4 sm:px-6 lg:px-8 max-w-[1920px] mx-auto w-full min-h-0">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full min-h-0">
+                <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6 h-full min-h-0">
 
-                    {/* Left & Middle Column Split - More efficient for smaller laptops like 14" MBP */}
-                    <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-5 gap-6 min-h-0 overflow-hidden">
-
-                        {/* Video Player Column - Stays sticky or prominent */}
-                        <div className="xl:col-span-3 flex flex-col gap-4 min-h-0">
-                            <div className="xl:sticky xl:top-0 z-30">
-                                <VideoPlayer
-                                    state={videoState}
-                                    onUpdate={updateVideoState}
-                                    onEnded={handleVideoEnd}
-                                    isHost={isHost}
-                                />
-                            </div>
-
-                            {/* For mobile/tablet, Queue might stack here, but for XL we can move it */}
-                            <div className="xl:hidden">
-                                <Queue
-                                    items={queue}
-                                    nowPlaying={{
-                                        video_id: videoState.current_video_id,
-                                        title: videoState.current_title,
-                                        thumbnail: videoState.current_thumbnail,
-                                    }}
-                                    onPlay={handlePlayFromQueue}
-                                    onRemove={removeFromQueue}
-                                    isHost={isHost}
-                                />
-                            </div>
+                    {/* Main Content Area - Video Player & Now Playing info */}
+                    <div className="lg:col-span-2 xl:col-span-3 flex flex-col gap-6 min-h-0">
+                        <div className="max-w-5xl w-full mx-auto">
+                            <VideoPlayer
+                                state={videoState}
+                                onUpdate={updateVideoState}
+                                onEnded={handleVideoEnd}
+                                isHost={isHost}
+                            />
                         </div>
 
-                        {/* Search & Results Column - Always visible side-by-side on larger screens */}
-                        <div className="xl:col-span-2 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar min-h-0">
-                            <div className="glass rounded-2xl p-4 sm:p-6">
-                                <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Add Music</h2>
-                                <SearchBar onSearch={handleSearch} />
-                                <SearchResults
-                                    results={searchResults}
-                                    onAdd={handleAddVideo}
-                                    onPreview={setPreviewVideo}
-                                    onClear={() => setSearchResults([])}
-                                    isLoading={isSearching}
-                                    error={searchError}
-                                />
-                            </div>
-
-                            <div className="hidden xl:block min-h-0">
-                                <Queue
-                                    items={queue}
-                                    nowPlaying={{
-                                        video_id: videoState.current_video_id,
-                                        title: videoState.current_title,
-                                        thumbnail: videoState.current_thumbnail,
-                                    }}
-                                    onPlay={handlePlayFromQueue}
-                                    onRemove={removeFromQueue}
-                                    isHost={isHost}
-                                />
+                        {/* Room Info / Status */}
+                        <div className="glass rounded-3xl p-6 border border-white/5 bg-white/[0.02] backdrop-blur-md">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-xl font-bold text-white mb-2 line-clamp-1">
+                                        {videoState.current_title || 'No video playing'}
+                                    </h1>
+                                    <div className="flex items-center gap-3 text-slate-400 text-sm font-medium">
+                                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 border border-white/5">
+                                            <div className="h-1.5 w-1.5 rounded-full bg-violet-500 shadow-[0_0_8px_#8b5cf6]" />
+                                            <span>Active Room</span>
+                                        </div>
+                                        <span>•</span>
+                                        <span className="truncate">{roomName}</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 shrink-0">
+                                    <div className="px-4 py-2 rounded-full bg-violet-600/10 border border-violet-600/20 text-violet-400 font-bold text-sm">
+                                        {viewerCount} Viewers
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Column - Chat (Takes 1 col) */}
+                    {/* Unified Sidebar - Search, Queue, Chat, Users */}
                     <div className="lg:col-span-1 h-full min-h-0">
                         <ChatSidebar
                             messages={messages}
@@ -213,6 +188,22 @@ export default function RoomPage({
                             isHost={isHost}
                             hostId={hostId}
                             onTransferHost={transferHost}
+                            // Unified Props
+                            searchResults={searchResults}
+                            onSearch={handleSearch}
+                            isSearching={isSearching}
+                            searchError={searchError}
+                            onAddVideo={handleAddVideo}
+                            onPreviewVideo={setPreviewVideo}
+                            onClearSearch={() => setSearchResults([])}
+                            queueItems={queue}
+                            nowPlaying={{
+                                video_id: videoState.current_video_id,
+                                title: videoState.current_title,
+                                thumbnail: videoState.current_thumbnail,
+                            }}
+                            onPlayFromQueue={handlePlayFromQueue}
+                            onRemoveFromQueue={removeFromQueue}
                         />
                     </div>
 
