@@ -121,6 +121,20 @@ export default function RoomPage({
         removeFromQueue(video.id);
     };
 
+    const handleVideoEnd = () => {
+        if (queue.length > 0) {
+            handlePlayFromQueue(queue[0]);
+        } else {
+            // Room is empty now
+            updateVideoState({
+                current_video_id: null,
+                current_title: null,
+                current_thumbnail: null,
+                is_playing: false,
+            });
+        }
+    };
+
     return (
         <div className="h-screen bg-brand-dark flex flex-col overflow-hidden">
             <Navbar
@@ -139,6 +153,7 @@ export default function RoomPage({
                         <VideoPlayer
                             state={videoState}
                             onUpdate={updateVideoState}
+                            onEnded={handleVideoEnd}
                             isHost={isHost}
                         />
 

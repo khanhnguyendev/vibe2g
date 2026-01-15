@@ -16,10 +16,11 @@ type RoomState = {
 interface VideoPlayerProps {
     state: RoomState;
     onUpdate: (updates: Partial<RoomState>) => void;
+    onEnded?: () => void;
     isHost?: boolean;
 }
 
-export function VideoPlayer({ state, onUpdate, isHost = true }: VideoPlayerProps) {
+export function VideoPlayer({ state, onUpdate, onEnded, isHost = true }: VideoPlayerProps) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(100);
     const [isMuted, setIsMuted] = useState(false);
@@ -176,6 +177,7 @@ export function VideoPlayer({ state, onUpdate, isHost = true }: VideoPlayerProps
                     }}
                     onReady={onReady}
                     onStateChange={onStateChange}
+                    onEnd={() => isHost && onEnded?.()}
                 />
             ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-brand-dark/50 backdrop-blur-sm border-2 border-dashed border-white/5 rounded-2xl m-2">
