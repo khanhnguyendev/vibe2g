@@ -29,7 +29,7 @@ export default function RoomPage({ params }: { params: { id: string } }) {
                     </div>
 
                     {/* Right Column - Chat (Takes 1 col) */}
-                    <div className="lg:col-span-1 h-full">
+                    <div className="lg:col-span-1 h-[600px] lg:h-full">
                         <ChatSidebar />
                     </div>
 
