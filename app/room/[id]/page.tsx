@@ -121,7 +121,7 @@ export default function RoomPage({
         }
     };
 
-    const handlePlayFromQueue = (video: any) => {
+    const handlePlayFromQueue = async (video: any) => {
         console.log('RoomPage: handlePlayFromQueue called', { video, isHost });
         if (!isHost) {
             console.warn('RoomPage: Not the host, skipping play transition');
@@ -142,7 +142,7 @@ export default function RoomPage({
             error: 'Failed to transition'
         });
 
-        removeFromQueue(video.id);
+        await removeFromQueue(video.id, true);
     };
 
     const handleVideoEnd = () => {

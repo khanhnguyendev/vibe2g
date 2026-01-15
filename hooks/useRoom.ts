@@ -284,21 +284,21 @@ export function useRoom(roomId: string, userName: string) {
         });
     };
 
-    const removeFromQueue = async (id: number) => {
+    const removeFromQueue = async (id: number, silent = false) => {
         const itemToRemove = queue.find(item => item.id === id);
         const promise = (async () => {
             const { error } = await supabase.from('queue').delete().eq('id', id);
             if (error) throw error;
         })();
 
-        if (itemToRemove) {
+        if (itemToRemove && !silent) {
             toast.promise(promise, {
                 loading: 'Removing...',
                 success: `Removed "${itemToRemove.title}" from queue`,
                 error: 'Failed to remove from queue'
             });
         }
-        await promise;
+        return promise;
     };
 
     return {
