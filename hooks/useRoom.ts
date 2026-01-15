@@ -24,6 +24,8 @@ type NewQueueItem = Omit<QueueItem, 'id'>;
 
 type RoomState = {
     current_video_id: string | null;
+    current_title: string | null;
+    current_thumbnail: string | null;
     is_playing: boolean;
     playback_rate: number;
     last_synced_at: string;
@@ -32,6 +34,8 @@ type RoomState = {
 export function useRoom(roomId: string, userName: string) {
     const [videoState, setVideoState] = useState<RoomState>({
         current_video_id: null,
+        current_title: null,
+        current_thumbnail: null,
         is_playing: false,
         playback_rate: 1,
         last_synced_at: new Date().toISOString(),
@@ -75,6 +79,8 @@ export function useRoom(roomId: string, userName: string) {
             if (room) {
                 setVideoState({
                     current_video_id: room.current_video_id || null,
+                    current_title: room.current_title || null,
+                    current_thumbnail: room.current_thumbnail || null,
                     is_playing: room.is_playing,
                     playback_rate: room.playback_rate,
                     last_synced_at: room.last_synced_at,
@@ -115,6 +121,8 @@ export function useRoom(roomId: string, userName: string) {
                 const newRow = payload.new;
                 setVideoState({
                     current_video_id: newRow.current_video_id,
+                    current_title: newRow.current_title,
+                    current_thumbnail: newRow.current_thumbnail,
                     is_playing: newRow.is_playing,
                     playback_rate: newRow.playback_rate,
                     last_synced_at: newRow.last_synced_at,
