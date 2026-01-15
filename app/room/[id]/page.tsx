@@ -142,43 +142,64 @@ export default function RoomPage({
             <main className="flex-1 flex flex-col pt-24 pb-4 px-4 sm:px-6 lg:px-8 max-w-[1920px] mx-auto w-full min-h-0">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full min-h-0">
 
-                    {/* Left Column - Video Player & Search (Takes 3 cols) */}
-                    <div className="lg:col-span-3 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar relative">
-                        <div className="sticky top-0 z-30 pb-2 bg-brand-dark/50 backdrop-blur-md -mx-2 px-2 pt-2">
-                            <VideoPlayer
-                                state={videoState}
-                                onUpdate={updateVideoState}
-                                onEnded={handleVideoEnd}
-                                isHost={isHost}
-                            />
+                    {/* Left & Middle Column Split - More efficient for smaller laptops like 14" MBP */}
+                    <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-5 gap-6 min-h-0 overflow-hidden">
+
+                        {/* Video Player Column - Stays sticky or prominent */}
+                        <div className="xl:col-span-3 flex flex-col gap-4 min-h-0">
+                            <div className="xl:sticky xl:top-0 z-30">
+                                <VideoPlayer
+                                    state={videoState}
+                                    onUpdate={updateVideoState}
+                                    onEnded={handleVideoEnd}
+                                    isHost={isHost}
+                                />
+                            </div>
+
+                            {/* For mobile/tablet, Queue might stack here, but for XL we can move it */}
+                            <div className="xl:hidden">
+                                <Queue
+                                    items={queue}
+                                    nowPlaying={{
+                                        video_id: videoState.current_video_id,
+                                        title: videoState.current_title,
+                                        thumbnail: videoState.current_thumbnail,
+                                    }}
+                                    onPlay={handlePlayFromQueue}
+                                    onRemove={removeFromQueue}
+                                    isHost={isHost}
+                                />
+                            </div>
                         </div>
 
-                        {/* Search Section */}
-                        <div className="glass rounded-2xl p-6">
-                            <SearchBar onSearch={handleSearch} />
-                            <SearchResults
-                                results={searchResults}
-                                onAdd={handleAddVideo}
-                                onPreview={setPreviewVideo}
-                                onClear={() => setSearchResults([])}
-                                isLoading={isSearching}
-                                error={searchError}
-                            />
-                        </div>
+                        {/* Search & Results Column - Always visible side-by-side on larger screens */}
+                        <div className="xl:col-span-2 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar min-h-0">
+                            <div className="glass rounded-2xl p-4 sm:p-6">
+                                <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Add Music</h2>
+                                <SearchBar onSearch={handleSearch} />
+                                <SearchResults
+                                    results={searchResults}
+                                    onAdd={handleAddVideo}
+                                    onPreview={setPreviewVideo}
+                                    onClear={() => setSearchResults([])}
+                                    isLoading={isSearching}
+                                    error={searchError}
+                                />
+                            </div>
 
-                        {/* Queue Component */}
-                        <div className="min-h-0">
-                            <Queue
-                                items={queue}
-                                nowPlaying={{
-                                    video_id: videoState.current_video_id,
-                                    title: videoState.current_title,
-                                    thumbnail: videoState.current_thumbnail,
-                                }}
-                                onPlay={handlePlayFromQueue}
-                                onRemove={removeFromQueue}
-                                isHost={isHost}
-                            />
+                            <div className="hidden xl:block min-h-0">
+                                <Queue
+                                    items={queue}
+                                    nowPlaying={{
+                                        video_id: videoState.current_video_id,
+                                        title: videoState.current_title,
+                                        thumbnail: videoState.current_thumbnail,
+                                    }}
+                                    onPlay={handlePlayFromQueue}
+                                    onRemove={removeFromQueue}
+                                    isHost={isHost}
+                                />
+                            </div>
                         </div>
                     </div>
 
