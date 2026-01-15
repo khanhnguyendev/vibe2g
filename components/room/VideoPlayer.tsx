@@ -2,38 +2,95 @@
 
 import { Play, Pause, Volume2, Maximize, SkipForward, Settings, VolumeX } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import ReactPlayer from 'react-player/youtube';
+import YouTube, { YouTubeEvent, YouTubeProps } from 'react-youtube';
 import { cn } from '@/lib/utils';
 
 export function VideoPlayer() {
     const [isPlaying, setIsPlaying] = useState(false);
-    const [volume, setVolume] = useState(0.8);
+    const [volume, setVolume] = useState(100); // YouTube API uses 0-100
     const [isMuted, setIsMuted] = useState(false);
-    const [progress, setProgress] = useState(0);
+    const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [hasMounted, setHasMounted] = useState(false);
-    const playerRef = useRef<ReactPlayer>(null);
+    const [player, setPlayer] = useState<any>(null);
 
-    useEffect(() => {
-        setHasMounted(true);
-    }, []);
+    const progressInterval = useRef<NodeJS.Timeout | null>(null);
 
-    const togglePlay = () => setIsPlaying(!isPlaying);
-    const toggleMute = () => setIsMuted(!isMuted);
-
-    const handleProgress = (state: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }) => {
-        setProgress(state.played * 100);
+    const onReady: YouTubeProps['onReady'] = (event: YouTubeEvent) => {
+        setPlayer(event.target);
+        setDuration(event.target.getDuration());
+        setVolume(event.target.getVolume());
     };
 
-    const handleDuration = (duration: number) => {
-        setDuration(duration);
+    const onStateChange: YouTubeProps['onStateChange'] = (event: YouTubeEvent) => {
+        // 1 = Playing, 2 = Paused
+        setIsPlaying(event.data === 1);
+
+        if (event.data === 1) {
+            startProgressTimer();
+        } else {
+            stopProgressTimer();
+        }
+    };
+
+    const startProgressTimer = () => {
+        stopProgressTimer();
+        progressInterval.current = setInterval(() => {
+            if (player) {
+                setCurrentTime(player.getCurrentTime());
+            }
+        }, 1000);
+    };
+
+    const stopProgressTimer = () => {
+        if (progressInterval.current) {
+            clearInterval(progressInterval.current);
+        }
+    };
+
+    // Cleanup
+    useEffect(() => {
+        return () => stopProgressTimer();
+    }, []);
+
+    const togglePlay = () => {
+        if (!player) return;
+        if (isPlaying) {
+            player.pauseVideo();
+        } else {
+            player.playVideo();
+        }
+    };
+
+    const toggleMute = () => {
+        if (!player) return;
+        if (isMuted) {
+            player.unMute();
+            setIsMuted(false);
+        } else {
+            player.mute();
+            setIsMuted(true);
+        }
+    };
+
+    const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!player) return;
+        const newVol = parseInt(e.target.value);
+        player.setVolume(newVol);
+        setVolume(newVol);
+        if (newVol > 0 && isMuted) {
+            player.unMute();
+            setIsMuted(false);
+        }
     };
 
     const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!player) return;
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const percentage = x / rect.width;
-        playerRef.current?.seekTo(percentage);
+        const seekToTime = duration * percentage;
+        player.seekTo(seekToTime, true);
+        setCurrentTime(seekToTime);
     };
 
     const formatTime = (seconds: number) => {
@@ -43,24 +100,28 @@ export function VideoPlayer() {
         return `${mm}:${ss}`;
     };
 
+    const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
     return (
         <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-2xl shadow-violet-900/20 group ring-1 ring-white/10">
 
-            {hasMounted && (
-                <ReactPlayer
-                    ref={playerRef}
-                    url="https://www.youtube.com/watch?v=Hu4Yvq-g7_Y"
-                    width="100%"
-                    height="100%"
-                    playing={isPlaying}
-                    volume={volume}
-                    muted={isMuted}
-                    onProgress={handleProgress}
-                    onDuration={handleDuration}
-                    controls={false}
-                    className="absolute inset-0"
-                />
-            )}
+            <YouTube
+                videoId="Hu4Yvq-g7_Y"
+                className="absolute inset-0 w-full h-full"
+                iframeClassName="w-full h-full"
+                opts={{
+                    height: '100%',
+                    width: '100%',
+                    playerVars: {
+                        autoplay: 0,
+                        controls: 0, // Hide native controls
+                        modestbranding: 1,
+                        rel: 0,
+                    },
+                }}
+                onReady={onReady}
+                onStateChange={onStateChange}
+            />
 
             {/* Glass Overlay Controls */}
             <div className="absolute inset-x-0 bottom-0 p-4 transition-opacity duration-300 opacity-0 group-hover:opacity-100 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-20">
@@ -72,7 +133,7 @@ export function VideoPlayer() {
                 >
                     <div
                         className="h-full rounded-full bg-gradient-to-r from-violet-500 to-pink-500 relative"
-                        style={{ width: `${progress}%` }}
+                        style={{ width: `${progressPercent}%` }}
                     >
                         <div className="absolute right-0 top-1/2 h-3.5 w-3.5 -translate-y-1/2 scale-0 rounded-full bg-white shadow-lg group-hover/seek:scale-100 transition-transform" />
                     </div>
@@ -99,20 +160,16 @@ export function VideoPlayer() {
                                 <input
                                     type="range"
                                     min={0}
-                                    max={1}
-                                    step={0.1}
+                                    max={100}
                                     value={volume}
-                                    onChange={(e) => {
-                                        setVolume(parseFloat(e.target.value));
-                                        setIsMuted(false);
-                                    }}
+                                    onChange={handleVolumeChange}
                                     className="h-1 w-full bg-white/20 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
                                 />
                             </div>
                         </div>
 
                         <span className="text-sm font-medium text-slate-300 font-mono">
-                            {formatTime(duration * (progress / 100))} / {formatTime(duration)}
+                            {formatTime(currentTime)} / {formatTime(duration)}
                         </span>
                     </div>
 
