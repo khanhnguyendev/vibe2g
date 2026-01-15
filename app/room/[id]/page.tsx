@@ -11,6 +11,7 @@ import { SearchResults } from '@/components/room/SearchResults';
 import { Users, Eye, Music2 } from 'lucide-react';
 import { EntryModal } from '@/components/room/EntryModal';
 import { extractVideoId, fetchVideoDetails, searchYouTube } from '@/lib/youtube';
+import { toast } from 'sonner';
 
 export default function RoomPage({
     params: paramsPromise,
@@ -94,13 +95,19 @@ export default function RoomPage({
         if (!video?.id) return;
 
         if (!videoState.current_video_id) {
-            updateVideoState({
+            const promise = updateVideoState({
                 current_video_id: video.id,
                 current_title: video.title,
                 current_thumbnail: video.thumbnail,
                 current_channel_title: video.channelTitle,
                 current_view_count: video.viewCount,
                 is_playing: true,
+            });
+
+            toast.promise(promise, {
+                loading: 'Starting video...',
+                success: `Playing "${video.title}"`,
+                error: 'Failed to start video'
             });
         } else {
             addToQueue({
@@ -120,7 +127,7 @@ export default function RoomPage({
             console.warn('RoomPage: Not the host, skipping play transition');
             return;
         }
-        updateVideoState({
+        const promise = updateVideoState({
             current_video_id: video.video_id,
             current_title: video.title,
             current_thumbnail: video.thumbnail,
@@ -128,6 +135,13 @@ export default function RoomPage({
             current_view_count: video.view_count,
             is_playing: true,
         });
+
+        toast.promise(promise, {
+            loading: 'Transitioning...',
+            success: `Playing "${video.title}"`,
+            error: 'Failed to transition'
+        });
+
         removeFromQueue(video.id);
     };
 

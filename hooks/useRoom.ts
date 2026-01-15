@@ -56,6 +56,7 @@ export function useRoom(roomId: string, userName: string) {
     const [hostId, setHostId] = useState<string | null>(null);
     const [activeUsers, setActiveUsers] = useState<any[]>([]);
     const channelRef = useRef<RealtimeChannel | null>(null);
+    const prevVideoIdRef = useRef<string | null>(null);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -141,6 +142,15 @@ export function useRoom(roomId: string, userName: string) {
         channel
             .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms', filter: `id=eq.${roomId}` }, (payload: any) => {
                 const newRow = payload.new;
+
+                if (newRow.current_video_id !== prevVideoIdRef.current && newRow.current_video_id) {
+                    // Only toast for others (The host who triggered it already has a toast)
+                    if (newRow.host_id !== currentUserId) {
+                        toast.success(`Now playing: ${newRow.current_title}`, { icon: '🎬' });
+                    }
+                }
+                prevVideoIdRef.current = newRow.current_video_id;
+
                 setVideoState({
                     current_video_id: newRow.current_video_id,
                     current_title: newRow.current_title,
@@ -152,6 +162,7 @@ export function useRoom(roomId: string, userName: string) {
                     last_synced_at: newRow.last_synced_at,
                     host_id: newRow.host_id,
                 });
+
                 if (newRow.host_id !== hostId && newRow.host_id) {
                     const newHost = activeUsers.find(u => u.id === newRow.host_id);
                     if (newHost) {
@@ -268,7 +279,7 @@ export function useRoom(roomId: string, userName: string) {
 
         toast.promise(promise, {
             loading: 'Adding to queue...',
-            success: (data: any) => `Added "${data.title}" to queue`,
+            success: (data: any) => `${data.added_by} added "${data.title}" to queue`,
             error: 'Failed to add to queue'
         });
     };
