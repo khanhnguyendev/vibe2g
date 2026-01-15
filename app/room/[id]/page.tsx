@@ -19,7 +19,7 @@ export default function RoomPage({ params }: { params: { id: string } }) {
                         {/* Video Info / Queue */}
                         <div className="flex-1 flex flex-col gap-4 min-h-0">
                             <div className="glass rounded-2xl p-6 shrink-0">
-                                <h2 className="text-2xl font-bold text-white mb-2">Cyberpunk 2077 - Phantom Liberty Trailer</h2>
+                                <h2 className="text-2xl font-bold text-white mb-2">Room: {params.id}</h2>
                                 <p className="text-slate-400">Viewing with 2 others</p>
                             </div>
 

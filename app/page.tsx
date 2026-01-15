@@ -1,8 +1,20 @@
+'use client';
+
 import { Navbar } from '@/components/layout/Navbar';
 import { ArrowRight, Users, Zap, Shield } from 'lucide-react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function Home() {
+  const router = useRouter();
+  const [roomId, setRoomId] = useState('');
+
+  const handleJoin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const targetRoom = roomId.trim() || Math.random().toString(36).substring(2, 8);
+    router.push(`/room/${targetRoom}`);
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden bg-brand-dark text-white selection:bg-brand-violet/30">
       <Navbar />
@@ -32,15 +44,24 @@ export default function Home() {
             The premium way to share moments. Watch YouTube in perfect sync with friends, in high-fidelity audio and zero latency.
           </p>
 
-          <div className="pt-8">
-            <Link href="/room/demo">
-              <button className="group relative inline-flex items-center justify-center p-[1px] overflow-hidden rounded-full transition-transform hover:scale-105 active:scale-95">
-                <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
-                <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950/80 px-8 py-4 text-base font-semibold text-white backdrop-blur-3xl transition-all group-hover:bg-slate-950/70">
-                  Create Room <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </span>
+          {/* Join/Create Room Form */}
+          <div className="pt-8 max-w-md mx-auto w-full">
+            <form onSubmit={handleJoin} className="relative flex items-center">
+              <input
+                type="text"
+                value={roomId}
+                onChange={(e) => setRoomId(e.target.value)}
+                placeholder="Enter Room ID (or leave blank to create)"
+                className="w-full h-14 pl-6 pr-44 bg-white/5 border border-white/10 rounded-full text-white placeholder:text-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all backdrop-blur-sm"
+              />
+              <button
+                type="submit"
+                className="absolute right-1 top-1 bottom-1 group inline-flex items-center justify-center rounded-full bg-slate-100 px-6 font-semibold text-slate-950 transition-all hover:bg-white hover:scale-105 active:scale-95"
+              >
+                {roomId ? 'Join Room' : 'Create Room'}
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </button>
-            </Link>
+            </form>
           </div>
 
         </div>
