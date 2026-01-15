@@ -124,10 +124,14 @@ export function useRoom(roomId: string, userName: string) {
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` }, (payload: any) => {
                 setMessages(prev => [...prev, payload.new as Message]);
             })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'queue', filter: `room_id=eq.${roomId}` }, () => {
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'queue', filter: `room_id=eq.${roomId}` }, (payload) => {
+                console.log('useRoom: Queue changed!', payload);
                 supabase.from('queue').select('*').eq('room_id', roomId).order('created_at', { ascending: true })
                     .then(({ data }) => {
-                        if (data) setQueue(data as any);
+                        if (data) {
+                            console.log('useRoom: Refetched queue', data.length);
+                            setQueue(data as any);
+                        }
                     });
             })
             .subscribe(async (status) => {
@@ -173,16 +177,23 @@ export function useRoom(roomId: string, userName: string) {
 
     const addToQueue = async (video: NewQueueItem) => {
         console.log('useRoom: Adding to queue', video);
-        const { error } = await supabase.from('queue').insert({
+        const { data, error } = await supabase.from('queue').insert({
             room_id: roomId,
             video_id: video.video_id,
             title: video.title,
             thumbnail: video.thumbnail,
             added_by: userName,
-        });
+        }).select().single();
 
         if (error) {
             console.error('useRoom: Failed to add to queue', error);
+        } else if (data) {
+            console.log('useRoom: Successfully added, updating local state');
+            // Optimistic update to avoid waiting for Realtime
+            setQueue(prev => {
+                if (prev.find(item => item.id === data.id)) return prev;
+                return [...prev, data as QueueItem];
+            });
         }
     };
 
