@@ -10,6 +10,7 @@ import { SearchBar } from '@/components/room/SearchBar';
 import { SearchResults } from '@/components/room/SearchResults';
 import { Users } from 'lucide-react';
 import { EntryModal } from '@/components/room/EntryModal';
+import { extractVideoId, fetchOEmbedInfo } from '@/lib/youtube';
 
 export default function RoomPage({
     params: paramsPromise,
@@ -59,16 +60,33 @@ export default function RoomPage({
 
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [previewVideo, setPreviewVideo] = useState<any>(null);
+    const [isSearching, setIsSearching] = useState(false);
 
     const handleSearch = async (query: string) => {
-        // Mocking YouTube Search Results
+        setIsSearching(true);
+        const videoId = extractVideoId(query);
+
+        if (videoId) {
+            const info = await fetchOEmbedInfo(videoId);
+            if (info) {
+                setSearchResults([info]);
+                setIsSearching(false);
+                return;
+            }
+        }
+
+        // Mocking YouTube Search Results (Keep for keyword searches until real API is added)
         const mockResults = [
             { id: 'jfKfPfyJRdk', title: 'lofi hip hop radio 💤 beats to sleep/chill to', thumbnail: 'https://i.ytimg.com/vi/jfKfPfyJRdk/hq720.jpg', channelTitle: 'Lofi Girl', duration: 'LIVE' },
             { id: '5qap5aO4i9A', title: 'lofi hip hop radio - beats to relax/study to', thumbnail: 'https://i.ytimg.com/vi/5qap5aO4i9A/hq720.jpg', channelTitle: 'Lofi Girl', duration: 'LIVE' },
             { id: 'dQw4w9WgXcQ', title: 'Rick Astley - Never Gonna Give You Up (Official Music Video)', thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hq720.jpg', channelTitle: 'Rick Astley', duration: '3:33' },
             { id: 'hTWKbfoikeg', title: 'Nirvana - Smells Like Teen Spirit (Official Music Video)', thumbnail: 'https://i.ytimg.com/vi/hTWKbfoikeg/hq720.jpg', channelTitle: 'Nirvana', duration: '4:38' },
         ];
-        setSearchResults(mockResults);
+
+        // Simple client-side filter to make mock slightly better
+        const filtered = mockResults.filter(r => r.title.toLowerCase().includes(query.toLowerCase()));
+        setSearchResults(filtered.length > 0 ? filtered : mockResults.slice(0, 2));
+        setIsSearching(false);
     };
 
     const handleAddVideo = (video: any) => {
