@@ -7,12 +7,22 @@ import { useState } from 'react';
 
 export default function Home() {
   const router = useRouter();
-  const [roomId, setRoomId] = useState('');
+  const [view, setView] = useState<'join' | 'create'>('create');
+  const [inputValue, setInputValue] = useState('');
 
-  const handleJoin = (e: React.FormEvent) => {
+  const handleAction = (e: React.FormEvent) => {
     e.preventDefault();
-    const targetRoom = roomId.trim() || Math.random().toString(36).substring(2, 8);
-    router.push(`/room/${targetRoom}`);
+    if (!inputValue.trim()) return;
+
+    if (view === 'join') {
+      router.push(`/room/${inputValue.trim()}`);
+    } else {
+      // Create Room - Generate ID and pass Name
+      const roomId = Math.random().toString(36).substring(2, 9);
+      const params = new URLSearchParams();
+      params.set('name', inputValue.trim());
+      router.push(`/room/${roomId}?${params.toString()}`);
+    }
   };
 
   return (
@@ -44,21 +54,37 @@ export default function Home() {
             The premium way to share moments. Watch YouTube in perfect sync with friends, in high-fidelity audio and zero latency.
           </p>
 
-          {/* Join/Create Room Form */}
+          {/* Join/Create Room Tabs */}
           <div className="pt-8 max-w-md mx-auto w-full">
-            <form onSubmit={handleJoin} className="relative flex items-center">
+            <div className="flex bg-white/5 p-1 rounded-full mb-6 border border-white/10 relative backdrop-blur-sm">
+              <button
+                onClick={() => setView('join')}
+                className={`flex-1 py-2.5 text-sm font-medium rounded-full transition-all duration-300 ${view === 'join' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}
+              >
+                Join Room
+              </button>
+              <button
+                onClick={() => setView('create')}
+                className={`flex-1 py-2.5 text-sm font-medium rounded-full transition-all duration-300 ${view === 'create' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}
+              >
+                Create Room
+              </button>
+            </div>
+
+            <form onSubmit={handleAction} className="relative flex items-center">
               <input
                 type="text"
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
-                placeholder="Enter Room ID (or leave blank to create)"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder={view === 'join' ? "Enter Room ID..." : "Enter Room Name..."}
                 className="w-full h-14 pl-6 pr-44 bg-white/5 border border-white/10 rounded-full text-white placeholder:text-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all backdrop-blur-sm"
               />
               <button
                 type="submit"
-                className="absolute right-1 top-1 bottom-1 group inline-flex items-center justify-center rounded-full bg-slate-100 px-6 font-semibold text-slate-950 transition-all hover:bg-white hover:scale-105 active:scale-95"
+                disabled={view === 'join' && !inputValue.trim()} // Only disable join if input is empty
+                className="absolute right-1 top-1 bottom-1 group inline-flex items-center justify-center rounded-full bg-slate-100 px-6 font-semibold text-slate-950 transition-all hover:bg-white hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {roomId ? 'Join Room' : 'Create Room'}
+                {view === 'join' ? 'Join Now' : 'Create'}
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </form>
