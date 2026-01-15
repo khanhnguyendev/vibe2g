@@ -23,7 +23,7 @@ type QueueItem = {
 type NewQueueItem = Omit<QueueItem, 'id'>;
 
 type RoomState = {
-    current_video_id: string;
+    current_video_id: string | null;
     is_playing: boolean;
     playback_rate: number;
     last_synced_at: string;
@@ -31,7 +31,7 @@ type RoomState = {
 
 export function useRoom(roomId: string, userName: string) {
     const [videoState, setVideoState] = useState<RoomState>({
-        current_video_id: 'Hu4Yvq-g7_Y',
+        current_video_id: null,
         is_playing: false,
         playback_rate: 1,
         last_synced_at: new Date().toISOString(),
@@ -74,7 +74,7 @@ export function useRoom(roomId: string, userName: string) {
             const { data: room } = await supabase.from('rooms').select('*').eq('id', roomId).single();
             if (room) {
                 setVideoState({
-                    current_video_id: room.current_video_id || 'Hu4Yvq-g7_Y',
+                    current_video_id: room.current_video_id || null,
                     is_playing: room.is_playing,
                     playback_rate: room.playback_rate,
                     last_synced_at: room.last_synced_at,
