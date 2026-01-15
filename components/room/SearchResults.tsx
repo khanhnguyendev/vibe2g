@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Play, Info, Loader2 } from 'lucide-react';
+import { Plus, Play, Info, Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SearchResult {
@@ -16,14 +16,32 @@ interface SearchResultsProps {
     onAdd: (video: SearchResult) => void;
     onPreview: (video: SearchResult) => void;
     isLoading?: boolean;
+    error?: string | null;
 }
 
-export function SearchResults({ results, onAdd, onPreview, isLoading }: SearchResultsProps) {
+export function SearchResults({ results, onAdd, onPreview, isLoading, error }: SearchResultsProps) {
     if (isLoading) {
         return (
             <div className="mt-6 flex flex-col items-center justify-center p-12 text-slate-500 animate-in fade-in duration-500">
                 <Loader2 className="h-8 w-8 animate-spin mb-4 text-violet-500" />
                 <p className="text-sm font-medium">Searching YouTube...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="mt-6 p-6 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 animate-in zoom-in-95 duration-300">
+                <div className="flex items-center gap-3 mb-2">
+                    <AlertCircle className="h-5 w-5" />
+                    <h4 className="font-bold">Search Unavailable</h4>
+                </div>
+                <p className="text-sm opacity-90 leading-relaxed">
+                    {error}
+                </p>
+                <p className="text-[10px] mt-4 opacity-50 uppercase tracking-widest font-bold">
+                    Tip: Direct YouTube links still work even if search is down!
+                </p>
             </div>
         );
     }

@@ -61,9 +61,11 @@ export default function RoomPage({
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [previewVideo, setPreviewVideo] = useState<any>(null);
     const [isSearching, setIsSearching] = useState(false);
+    const [searchError, setSearchError] = useState<string | null>(null);
 
     const handleSearch = async (query: string) => {
         setIsSearching(true);
+        setSearchError(null);
         const videoId = extractVideoId(query);
 
         if (videoId) {
@@ -76,6 +78,9 @@ export default function RoomPage({
         }
 
         const results = await searchYouTube(query);
+        if (results.length === 0 && query.trim()) {
+            setSearchError("The YouTube Search API returned no results or is currently restricted. Please check your API Key settings in the Google Cloud Console.");
+        }
         setSearchResults(results);
         setIsSearching(false);
     };
@@ -119,6 +124,7 @@ export default function RoomPage({
                                 onAdd={handleAddVideo}
                                 onPreview={setPreviewVideo}
                                 isLoading={isSearching}
+                                error={searchError}
                             />
                         </div>
 

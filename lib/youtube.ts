@@ -41,7 +41,12 @@ export const searchYouTube = async (query: string): Promise<any[]> => {
 
         if (!response.ok) {
             const errorData = await response.json();
-            console.error('YouTube API Error:', errorData);
+            console.error('YouTube API Error Details:', JSON.stringify(errorData, null, 2));
+
+            // Provide a hint for 403 errors
+            if (response.status === 403) {
+                console.warn('HINT: 403 Forbidden usually means:\n1. YouTube Data API v3 is not enabled in your Google Cloud Console.\n2. Your API Key is restricted (check Referer/IP restrictions).\n3. You have exceeded your daily quota.');
+            }
             return [];
         }
 
