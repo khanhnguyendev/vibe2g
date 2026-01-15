@@ -90,6 +90,17 @@ export default function RoomPage({
         if (!video?.id) {
             console.warn('RoomPage: video.id is missing', video);
         }
+
+        // If room is empty, play it immediately as well (UX improvement)
+        if (!videoState.current_video_id) {
+            updateVideoState({
+                current_video_id: video.id,
+                current_title: video.title,
+                current_thumbnail: video.thumbnail,
+                is_playing: true,
+            });
+        }
+
         addToQueue({
             video_id: video.id,
             title: video.title,
@@ -103,6 +114,8 @@ export default function RoomPage({
         if (!isHost) return;
         updateVideoState({
             current_video_id: video.video_id,
+            current_title: video.title,
+            current_thumbnail: video.thumbnail,
             is_playing: true,
         });
         removeFromQueue(video.id);
