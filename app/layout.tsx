@@ -13,8 +13,6 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
-import { logger } from "@/lib/logger";
-
 export const metadata: Metadata = {
   title: "vibe2g - Watch Together",
   description: "Real-time collaborative video watching platform.",
@@ -25,8 +23,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  logger.info({ event: 'app_render' }, 'Rendering RootLayout');
-
   return (
     <html lang="en">
       <body
