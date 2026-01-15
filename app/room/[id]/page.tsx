@@ -169,25 +169,47 @@ export default function RoomPage({
                             />
                         </div>
 
-                        {/* Room Info / Status */}
+                        {/* Video Info / Status Card */}
                         <div className="glass rounded-3xl p-6 border border-white/5 bg-white/[0.02] backdrop-blur-md">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                                 <div className="flex-1 min-w-0">
-                                    <h1 className="text-xl font-bold text-white mb-2 line-clamp-1">
-                                        {videoState.current_title || 'No video playing'}
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <span className="px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-400 text-[10px] font-bold uppercase tracking-wider border border-violet-500/20">
+                                            Now Playing
+                                        </span>
+                                        {isHost && (
+                                            <span className="px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-400 text-[10px] font-bold uppercase tracking-wider border border-orange-500/10">
+                                                You are Host
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h1 className="text-2xl font-bold text-white mb-2 line-clamp-2 leading-tight">
+                                        {videoState.current_title || 'Waiting for a video...'}
                                     </h1>
-                                    <div className="flex items-center gap-3 text-slate-400 text-sm font-medium">
-                                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5 border border-white/5">
-                                            <div className="h-1.5 w-1.5 rounded-full bg-violet-500 shadow-[0_0_8px_#8b5cf6]" />
-                                            <span>Active Room</span>
+                                    <div className="flex items-center gap-4 text-slate-400 text-sm font-medium">
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_#22c55e]" />
+                                            <span>Live Sync Active</span>
                                         </div>
                                         <span>•</span>
-                                        <span className="truncate">{roomName}</span>
+                                        <div className="flex items-center gap-2">
+                                            <Users className="h-4 w-4 text-slate-500" />
+                                            <span>{viewerCount} in room</span>
+                                        </div>
                                     </div>
                                 </div>
+
                                 <div className="flex items-center gap-3 shrink-0">
-                                    <div className="px-4 py-2 rounded-full bg-violet-600/10 border border-violet-600/20 text-violet-400 font-bold text-sm">
-                                        {viewerCount} Viewers
+                                    <div className="p-3 rounded-2xl bg-white/5 border border-white/5 flex items-center gap-3">
+                                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-600 to-pink-600 flex items-center justify-center text-white font-bold shadow-lg shadow-violet-500/20">
+                                            {activeUsers.find(u => u.id === hostId)?.name?.[0]?.toUpperCase() || 'H'}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Room Host</span>
+                                            <span className="text-sm font-bold text-slate-200 truncate max-w-[120px]">
+                                                {activeUsers.find(u => u.id === hostId)?.name || 'Syncing...'}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
