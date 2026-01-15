@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  web:
+    container_name: vibe2g
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=production
