@@ -9,6 +9,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { SearchBar } from '@/components/room/SearchBar';
 import { SearchResults } from '@/components/room/SearchResults';
 import { Users } from 'lucide-react';
+import { NameModal } from '@/components/room/NameModal';
 
 export default function RoomPage({
     params,
@@ -19,8 +20,9 @@ export default function RoomPage({
 }) {
     const roomName = searchParams.name || `Room: ${params.id}`;
 
-    // Resolve user name: URL param -> LocalStorage -> Random Guest
+    // Resolve user name: URL param -> LocalStorage -> Trigger Modal
     const [userDisplayName, setUserDisplayName] = useState<string>('');
+    const [isNameModalOpen, setIsNameModalOpen] = useState(false);
 
     useEffect(() => {
         const urlUsername = searchParams.username;
@@ -32,9 +34,8 @@ export default function RoomPage({
         } else if (storedUsername) {
             setUserDisplayName(storedUsername);
         } else {
-            const randomName = `Guest ${Math.floor(Math.random() * 9000) + 1000}`;
-            setUserDisplayName(randomName);
-            localStorage.setItem('vibe2g_username', randomName);
+            // No name found, trigger modal
+            setIsNameModalOpen(true);
         }
     }, [searchParams.username]);
 
@@ -47,7 +48,7 @@ export default function RoomPage({
         sendMessage,
         addToQueue,
         removeFromQueue
-    } = useRoom(params.id, userDisplayName);
+    } = useRoom(params.id, userDisplayName || 'Joining...');
 
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [previewVideo, setPreviewVideo] = useState<any>(null);
@@ -174,6 +175,15 @@ export default function RoomPage({
                     </div>
                 </div>
             )}
+            {/* Name Modal for direct link entries */}
+            <NameModal
+                isOpen={isNameModalOpen}
+                onClose={() => setIsNameModalOpen(false)}
+                onSave={(name) => {
+                    setUserDisplayName(name);
+                    setIsNameModalOpen(false);
+                }}
+            />
         </div>
     );
 }

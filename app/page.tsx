@@ -1,39 +1,39 @@
 'use client';
 
 import { Navbar } from '@/components/layout/Navbar';
-import { ArrowRight, Users, Zap, Shield, User } from 'lucide-react';
+import { ArrowRight, Users, Zap, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { NameModal } from '@/components/room/NameModal';
 
 export default function Home() {
   const router = useRouter();
   const [view, setView] = useState<'join' | 'create'>('create');
   const [inputValue, setInputValue] = useState('');
-  const [userName, setUserName] = useState('');
+  const [isNameModalOpen, setIsNameModalOpen] = useState(false);
 
-  // Load name from localStorage
-  useEffect(() => {
-    const savedName = localStorage.getItem('vibe2g_username');
-    if (savedName) setUserName(savedName);
-  }, []);
-
-  const handleAction = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim() || !userName.trim()) return;
-
-    // Save name
-    localStorage.setItem('vibe2g_username', userName.trim());
-
+  const navigateToRoom = (name: string) => {
     const params = new URLSearchParams();
-    params.set('username', userName.trim());
+    params.set('username', name);
 
     if (view === 'join') {
       router.push(`/room/${inputValue.trim()}?${params.toString()}`);
     } else {
-      // Create Room - Generate ID and pass Name
       const roomId = Math.random().toString(36).substring(2, 9);
       params.set('name', inputValue.trim());
       router.push(`/room/${roomId}?${params.toString()}`);
+    }
+  };
+
+  const handleAction = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim()) return;
+
+    const savedName = localStorage.getItem('vibe2g_username');
+    if (savedName) {
+      navigateToRoom(savedName);
+    } else {
+      setIsNameModalOpen(true);
     }
   };
 
@@ -69,20 +69,6 @@ export default function Home() {
           {/* Join/Create Room Tabs */}
           <div className="pt-8 max-w-md mx-auto w-full space-y-4">
 
-            {/* User Name Input */}
-            <div className="relative flex items-center group">
-              <div className="absolute left-5 text-slate-500 group-focus-within:text-violet-400 transition-colors">
-                <User className="h-5 w-5" />
-              </div>
-              <input
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                placeholder="Your Name..."
-                className="w-full h-14 pl-14 pr-6 bg-white/5 border border-white/10 rounded-full text-white placeholder:text-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all backdrop-blur-sm"
-              />
-            </div>
-
             <div className="flex bg-white/5 p-1 rounded-full border border-white/10 relative backdrop-blur-sm">
               <button
                 onClick={() => setView('join')}
@@ -108,7 +94,7 @@ export default function Home() {
               />
               <button
                 type="submit"
-                disabled={(view === 'join' && !inputValue.trim()) || !userName.trim()}
+                disabled={view === 'join' && !inputValue.trim()}
                 className="absolute right-1 top-1 bottom-1 group inline-flex items-center justify-center rounded-full bg-slate-100 px-6 font-semibold text-slate-950 transition-all hover:bg-white hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {view === 'join' ? 'Join Now' : 'Create'}
@@ -118,6 +104,15 @@ export default function Home() {
           </div>
 
         </div>
+
+        <NameModal
+          isOpen={isNameModalOpen}
+          onClose={() => setIsNameModalOpen(false)}
+          onSave={(name) => {
+            navigateToRoom(name);
+            setIsNameModalOpen(false);
+          }}
+        />
 
         {/* Feature Grid */}
         <div className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full px-4">
