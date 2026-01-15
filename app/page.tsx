@@ -5,12 +5,14 @@ import { ArrowRight, Users, Zap, Shield, Play } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { EntryModal } from '@/components/room/EntryModal';
+import { supabase } from '@/lib/supabase';
 
 export default function Home() {
   const router = useRouter();
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
 
-  const handleEntryComplete = ({ type, roomId, roomName, username }: { type: 'join' | 'create', roomId?: string, roomName?: string, username: string }) => {
+  const handleEntryComplete = async ({ type, roomId, roomName, username }: { type: 'join' | 'create', roomId?: string, roomName?: string, username: string }) => {
+    localStorage.setItem('vibe2g_username', username);
     const params = new URLSearchParams();
     params.set('username', username);
 
@@ -18,6 +20,18 @@ export default function Home() {
       router.push(`/room/${roomId}?${params.toString()}`);
     } else {
       const generatedId = Math.random().toString(36).substring(2, 9);
+
+      // Create room in database
+      const { error } = await supabase.from('rooms').insert({
+        id: generatedId,
+        name: roomName || `Room: ${generatedId}`,
+      });
+
+      if (error) {
+        console.error('Failed to create room:', error);
+        // Fallback or alert? For now just log.
+      }
+
       if (roomName) params.set('name', roomName);
       router.push(`/room/${generatedId}?${params.toString()}`);
     }

@@ -34,19 +34,24 @@ export function VideoPlayer({ state, onUpdate }: VideoPlayerProps) {
     useEffect(() => {
         if (!player) return;
 
-        // Sync play/pause
-        if (state.is_playing) {
-            player.playVideo();
-        } else {
-            player.pauseVideo();
-        }
+        try {
+            // Safety check for underlying iframe
+            if (!player.getInternalPlayer?.() && !player.getIframe?.()) return;
 
-        // Sync playback rate
-        if (player.getPlaybackRate() !== state.playback_rate) {
-            player.setPlaybackRate(state.playback_rate);
-        }
+            // Sync play/pause
+            if (state.is_playing) {
+                if (player.getPlayerState() !== 1) player.playVideo();
+            } else {
+                if (player.getPlayerState() !== 2) player.pauseVideo();
+            }
 
-        // We don't sync seek yet to avoid loops, but we could check last_synced_at
+            // Sync playback rate
+            if (player.getPlaybackRate() !== state.playback_rate) {
+                player.setPlaybackRate(state.playback_rate);
+            }
+        } catch (err) {
+            console.warn('VideoPlayer sync error:', err);
+        }
     }, [state.is_playing, state.playback_rate, player]);
 
     const onReady: YouTubeProps['onReady'] = (event: YouTubeEvent) => {
