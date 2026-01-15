@@ -86,6 +86,10 @@ export default function RoomPage({
     };
 
     const handleAddVideo = (video: any) => {
+        console.log('RoomPage: handleAddVideo called', video);
+        if (!video?.id) {
+            console.warn('RoomPage: video.id is missing', video);
+        }
         addToQueue({
             video_id: video.id,
             title: video.title,

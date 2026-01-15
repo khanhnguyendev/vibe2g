@@ -172,13 +172,18 @@ export function useRoom(roomId: string, userName: string) {
     };
 
     const addToQueue = async (video: NewQueueItem) => {
-        await supabase.from('queue').insert({
+        console.log('useRoom: Adding to queue', video);
+        const { error } = await supabase.from('queue').insert({
             room_id: roomId,
             video_id: video.video_id,
             title: video.title,
             thumbnail: video.thumbnail,
             added_by: userName,
         });
+
+        if (error) {
+            console.error('useRoom: Failed to add to queue', error);
+        }
     };
 
     const removeFromQueue = async (id: number) => {
