@@ -16,9 +16,10 @@ type RoomState = {
 interface VideoPlayerProps {
     state: RoomState;
     onUpdate: (updates: Partial<RoomState>) => void;
+    isHost?: boolean;
 }
 
-export function VideoPlayer({ state, onUpdate }: VideoPlayerProps) {
+export function VideoPlayer({ state, onUpdate, isHost = true }: VideoPlayerProps) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(100);
     const [isMuted, setIsMuted] = useState(false);
@@ -102,7 +103,7 @@ export function VideoPlayer({ state, onUpdate }: VideoPlayerProps) {
     }, []);
 
     const togglePlay = () => {
-        if (!player) return;
+        if (!player || !isHost) return;
         // User clicked play/pause
         if (isPlaying) {
             player.pauseVideo();
@@ -134,7 +135,7 @@ export function VideoPlayer({ state, onUpdate }: VideoPlayerProps) {
     };
 
     const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!player) return;
+        if (!player || !isHost) return;
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const percentage = x / rect.width;
@@ -194,7 +195,11 @@ export function VideoPlayer({ state, onUpdate }: VideoPlayerProps) {
                     <div className="flex items-center gap-4">
                         <button
                             onClick={togglePlay}
-                            className="p-2 hover:bg-white/10 rounded-full transition-colors active:scale-95"
+                            disabled={!isHost}
+                            className={cn(
+                                "p-2 hover:bg-white/10 rounded-full transition-colors active:scale-95",
+                                !isHost && "opacity-50 cursor-not-allowed"
+                            )}
                         >
                             {isPlaying ? <Pause className="h-6 w-6 fill-white" /> : <Play className="h-6 w-6 fill-white" />}
                         </button>
@@ -266,8 +271,8 @@ export function VideoPlayer({ state, onUpdate }: VideoPlayerProps) {
                 </div>
             </div>
 
-            {/* Center Play Button Overlay (when paused) */}
-            {!isPlaying && (
+            {/* Center Play Button Overlay (when paused) - Only for host */}
+            {!isPlaying && isHost && (
                 <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10"
                     onClick={togglePlay}

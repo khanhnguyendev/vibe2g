@@ -13,6 +13,14 @@ export default function Home() {
 
   const handleEntryComplete = async ({ type, roomId, roomName, username }: { type: 'join' | 'create', roomId?: string, roomName?: string, username: string }) => {
     localStorage.setItem('vibe2g_username', username);
+
+    // Ensure unique userId exists
+    let userId = localStorage.getItem('vibe2g_user_id');
+    if (!userId) {
+      userId = Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('vibe2g_user_id', userId);
+    }
+
     const params = new URLSearchParams();
     params.set('username', username);
 
@@ -21,10 +29,11 @@ export default function Home() {
     } else {
       const generatedId = Math.random().toString(36).substring(2, 9);
 
-      // Create room in database
+      // Create room in database with host_id
       const { error } = await supabase.from('rooms').insert({
         id: generatedId,
         name: roomName || `Room: ${generatedId}`,
+        host_id: userId, // Set creator as host
       });
 
       if (error) {

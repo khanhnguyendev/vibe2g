@@ -47,10 +47,14 @@ export default function RoomPage({
         messages,
         queue,
         viewerCount,
+        isHost,
+        hostId,
+        activeUsers,
         updateVideoState,
         sendMessage,
         addToQueue,
-        removeFromQueue
+        removeFromQueue,
+        transferHost
     } = useRoom(params.id, userDisplayName || 'Joining...');
 
     const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -94,6 +98,7 @@ export default function RoomPage({
                         <VideoPlayer
                             state={videoState}
                             onUpdate={updateVideoState}
+                            isHost={isHost}
                         />
 
                         {/* Search Section */}
@@ -122,6 +127,10 @@ export default function RoomPage({
                             messages={messages}
                             onSendMessage={sendMessage}
                             userName={userDisplayName}
+                            activeUsers={activeUsers}
+                            isHost={isHost}
+                            hostId={hostId}
+                            onTransferHost={transferHost}
                         />
                     </div>
 

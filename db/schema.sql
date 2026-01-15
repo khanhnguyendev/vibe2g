@@ -6,6 +6,7 @@ CREATE PUBLICATION supabase_realtime FOR ALL TABLES;
 CREATE TABLE rooms (
   id TEXT PRIMARY KEY,
   name TEXT,
+  host_id TEXT,
   current_video_id TEXT,
   is_playing BOOLEAN DEFAULT false,
   playback_rate NUMERIC DEFAULT 1,
