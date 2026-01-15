@@ -10,6 +10,8 @@ CREATE TABLE rooms (
   current_video_id TEXT,
   current_title TEXT,
   current_thumbnail TEXT,
+  current_channel_title TEXT,
+  current_view_count TEXT,
   is_playing BOOLEAN DEFAULT false,
   playback_rate NUMERIC DEFAULT 1,
   last_synced_at TIMESTAMPTZ DEFAULT NOW(),
@@ -33,6 +35,8 @@ CREATE TABLE queue (
   video_id TEXT NOT NULL,
   title TEXT NOT NULL,
   thumbnail TEXT,
+  channel_title TEXT,
+  view_count TEXT,
   added_by TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
