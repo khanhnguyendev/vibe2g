@@ -140,10 +140,10 @@ export default function RoomPage({
 
             {/* Main Layout */}
             <main className="flex-1 flex flex-col pt-24 pb-4 px-4 sm:px-6 lg:px-8 max-w-[1920px] mx-auto w-full min-h-0">
-                <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6 h-full min-h-0">
+                <div className="grid grid-cols-1 lg:grid-cols-5 xl:grid-cols-12 gap-6 h-full min-h-0">
 
                     {/* Main Content Area - Video Player & Now Playing info */}
-                    <div className="lg:col-span-2 xl:col-span-3 flex flex-col gap-6 min-h-0">
+                    <div className="lg:col-span-3 xl:col-span-8 flex flex-col gap-6 min-h-0">
                         <div className="max-w-5xl w-full mx-auto">
                             <VideoPlayer
                                 state={videoState}
@@ -179,7 +179,7 @@ export default function RoomPage({
                     </div>
 
                     {/* Unified Sidebar - Search, Queue, Chat, Users */}
-                    <div className="lg:col-span-1 h-full min-h-0">
+                    <div className="lg:col-span-2 xl:col-span-4 h-full min-h-0">
                         <ChatSidebar
                             messages={messages}
                             onSendMessage={sendMessage}
