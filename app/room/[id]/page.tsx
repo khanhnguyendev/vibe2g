@@ -5,19 +5,22 @@ import { VideoPlayer } from '@/components/room/VideoPlayer';
 import { ChatSidebar } from '@/components/room/ChatSidebar';
 import { Queue } from '@/components/room/Queue';
 import { useRoom } from '@/hooks/useRoom';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, use } from 'react';
 import { SearchBar } from '@/components/room/SearchBar';
 import { SearchResults } from '@/components/room/SearchResults';
 import { Users } from 'lucide-react';
 import { NameModal } from '@/components/room/NameModal';
 
 export default function RoomPage({
-    params,
-    searchParams
+    params: paramsPromise,
+    searchParams: searchParamsPromise
 }: {
-    params: { id: string },
-    searchParams: { name?: string, username?: string }
+    params: Promise<{ id: string }>,
+    searchParams: Promise<{ name?: string, username?: string }>
 }) {
+    const params = use(paramsPromise);
+    const searchParams = use(searchParamsPromise);
+
     const roomName = searchParams.name || `Room: ${params.id}`;
 
     // Resolve user name: URL param -> LocalStorage -> Trigger Modal
