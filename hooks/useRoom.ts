@@ -18,6 +18,8 @@ type QueueItem = {
     title: string;
     thumbnail: string;
     added_by: string;
+    channel_title: string | null;
+    view_count: string | null;
 };
 
 type NewQueueItem = Omit<QueueItem, 'id'>;
@@ -26,6 +28,8 @@ type RoomState = {
     current_video_id: string | null;
     current_title: string | null;
     current_thumbnail: string | null;
+    current_channel_title: string | null;
+    current_view_count: string | null;
     is_playing: boolean;
     playback_rate: number;
     last_synced_at: string;
@@ -36,6 +40,8 @@ export function useRoom(roomId: string, userName: string) {
         current_video_id: null,
         current_title: null,
         current_thumbnail: null,
+        current_channel_title: null,
+        current_view_count: null,
         is_playing: false,
         playback_rate: 1,
         last_synced_at: new Date().toISOString(),
@@ -81,6 +87,8 @@ export function useRoom(roomId: string, userName: string) {
                     current_video_id: room.current_video_id || null,
                     current_title: room.current_title || null,
                     current_thumbnail: room.current_thumbnail || null,
+                    current_channel_title: room.current_channel_title || null,
+                    current_view_count: room.current_view_count || null,
                     is_playing: room.is_playing,
                     playback_rate: room.playback_rate,
                     last_synced_at: room.last_synced_at,
@@ -123,6 +131,8 @@ export function useRoom(roomId: string, userName: string) {
                     current_video_id: newRow.current_video_id,
                     current_title: newRow.current_title,
                     current_thumbnail: newRow.current_thumbnail,
+                    current_channel_title: newRow.current_channel_title,
+                    current_view_count: newRow.current_view_count,
                     is_playing: newRow.is_playing,
                     playback_rate: newRow.playback_rate,
                     last_synced_at: newRow.last_synced_at,
@@ -196,6 +206,8 @@ export function useRoom(roomId: string, userName: string) {
             title: video.title,
             thumbnail: video.thumbnail,
             added_by: userName,
+            channel_title: video.channel_title,
+            view_count: video.view_count,
         };
         console.log('useRoom: Attempting insert', insertData);
 

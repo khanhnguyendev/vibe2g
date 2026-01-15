@@ -52,14 +52,20 @@ export const searchYouTube = async (query: string): Promise<any[]> => {
 
         const data = await response.json();
 
-        // Fetch durations separately because search API doesn't provide them
+        // Fetch durations and stats separately because search API doesn't provide them
         const videoIds = data.items.map((item: any) => item.id.videoId).join(',');
         const detailsResponse = await fetch(
-            `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds}&key=${YOUTUBE_API_KEY}`
+            `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}&key=${YOUTUBE_API_KEY}`
         );
         const detailsData = await detailsResponse.json();
-        const durationsMap = Object.fromEntries(
-            detailsData.items.map((item: any) => [item.id, parseISO8601Duration(item.contentDetails.duration)])
+        const detailsMap = Object.fromEntries(
+            detailsData.items.map((item: any) => [
+                item.id,
+                {
+                    duration: parseISO8601Duration(item.contentDetails.duration),
+                    viewCount: item.statistics.viewCount
+                }
+            ])
         );
 
         return data.items.map((item: any) => ({
@@ -67,7 +73,8 @@ export const searchYouTube = async (query: string): Promise<any[]> => {
             title: item.snippet.title,
             thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
             channelTitle: item.snippet.channelTitle,
-            duration: durationsMap[item.id.videoId] || '0:00',
+            duration: detailsMap[item.id.videoId]?.duration || '0:00',
+            viewCount: detailsMap[item.id.videoId]?.viewCount || '0',
         }));
     } catch (err) {
         console.error('YouTube search failed:', err);
@@ -86,4 +93,31 @@ const parseISO8601Duration = (duration: string) => {
         return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
+
+export const fetchVideoDetails = async (videoId: string) => {
+    if (!YOUTUBE_API_KEY) return fetchOEmbedInfo(videoId);
+
+    try {
+        const response = await fetch(
+            `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoId}&key=${YOUTUBE_API_KEY}`
+        );
+        if (!response.ok) return fetchOEmbedInfo(videoId);
+
+        const data = await response.json();
+        const item = data.items[0];
+        if (!item) return null;
+
+        return {
+            id: videoId,
+            title: item.snippet.title,
+            thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
+            channelTitle: item.snippet.channelTitle,
+            duration: parseISO8601Duration(item.contentDetails.duration),
+            viewCount: item.statistics.viewCount,
+        };
+    } catch (err) {
+        console.error('YouTube fetchVideoDetails failed:', err);
+        return fetchOEmbedInfo(videoId);
+    }
 };

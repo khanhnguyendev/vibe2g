@@ -8,7 +8,7 @@ import { useRoom } from '@/hooks/useRoom';
 import { useState, useEffect, useMemo, use, useRef } from 'react';
 import { SearchBar } from '@/components/room/SearchBar';
 import { SearchResults } from '@/components/room/SearchResults';
-import { Users } from 'lucide-react';
+import { Users, Eye, Music2 } from 'lucide-react';
 import { EntryModal } from '@/components/room/EntryModal';
 import { extractVideoId, fetchOEmbedInfo, searchYouTube } from '@/lib/youtube';
 
@@ -98,6 +98,8 @@ export default function RoomPage({
                 current_video_id: video.id,
                 current_title: video.title,
                 current_thumbnail: video.thumbnail,
+                current_channel_title: video.channelTitle,
+                current_view_count: video.viewCount,
                 is_playing: true,
             });
         } else {
@@ -105,7 +107,9 @@ export default function RoomPage({
                 video_id: video.id,
                 title: video.title,
                 thumbnail: video.thumbnail,
-                added_by: userDisplayName
+                added_by: userDisplayName,
+                channel_title: video.channelTitle,
+                view_count: video.viewCount,
             });
         }
     };
@@ -120,6 +124,8 @@ export default function RoomPage({
             current_video_id: video.video_id,
             current_title: video.title,
             current_thumbnail: video.thumbnail,
+            current_channel_title: video.channel_title,
+            current_view_count: video.view_count,
             is_playing: true,
         });
         removeFromQueue(video.id);
@@ -169,47 +175,41 @@ export default function RoomPage({
                             />
                         </div>
 
-                        {/* Video Info / Status Card */}
+                        {/* Video Info Card */}
                         <div className="glass rounded-3xl p-6 border border-white/5 bg-white/[0.02] backdrop-blur-md">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <span className="px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-400 text-[10px] font-bold uppercase tracking-wider border border-violet-500/20">
-                                            Now Playing
-                                        </span>
-                                        {isHost && (
-                                            <span className="px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-400 text-[10px] font-bold uppercase tracking-wider border border-orange-500/10">
-                                                You are Host
-                                            </span>
-                                        )}
-                                    </div>
-                                    <h1 className="text-2xl font-bold text-white mb-2 line-clamp-2 leading-tight">
-                                        {videoState.current_title || 'Waiting for a video...'}
-                                    </h1>
-                                    <div className="flex items-center gap-4 text-slate-400 text-sm font-medium">
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_#22c55e]" />
-                                            <span>Live Sync Active</span>
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center gap-2">
+                                    <span className="px-2 py-0.5 rounded-md bg-violet-500/20 text-violet-400 text-[10px] font-bold uppercase tracking-wider border border-violet-500/20">
+                                        Now Playing
+                                    </span>
+                                    {videoState.current_channel_title && (
+                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/5 text-slate-400 text-[10px] font-bold uppercase tracking-wider border border-white/5">
+                                            <Music2 className="h-3 w-3" />
+                                            {videoState.current_channel_title}
                                         </div>
-                                        <span>•</span>
-                                        <div className="flex items-center gap-2">
-                                            <Users className="h-4 w-4 text-slate-500" />
-                                            <span>{viewerCount} in room</span>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
 
-                                <div className="flex items-center gap-3 shrink-0">
-                                    <div className="p-3 rounded-2xl bg-white/5 border border-white/5 flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-600 to-pink-600 flex items-center justify-center text-white font-bold shadow-lg shadow-violet-500/20">
-                                            {activeUsers.find(u => u.id === hostId)?.name?.[0]?.toUpperCase() || 'H'}
+                                <h1 className="text-2xl font-bold text-white line-clamp-2 leading-tight">
+                                    {videoState.current_title || 'Waiting for a video...'}
+                                </h1>
+
+                                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-4 border-t border-white/5 mt-auto">
+                                    <div className="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                                        <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_#22c55e]" />
+                                        <span>Live Sync Mode</span>
+                                    </div>
+
+                                    {videoState.current_view_count && (
+                                        <div className="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                                            <Eye className="h-4 w-4 text-slate-500" />
+                                            <span>{Number(videoState.current_view_count).toLocaleString()} views</span>
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Room Host</span>
-                                            <span className="text-sm font-bold text-slate-200 truncate max-w-[120px]">
-                                                {activeUsers.find(u => u.id === hostId)?.name || 'Syncing...'}
-                                            </span>
-                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-2 text-slate-400 text-sm font-medium ml-auto md:ml-0">
+                                        <Users className="h-4 w-4 text-slate-500" />
+                                        <span>{viewerCount} in room</span>
                                     </div>
                                 </div>
                             </div>
