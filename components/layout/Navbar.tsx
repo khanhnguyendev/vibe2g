@@ -13,11 +13,12 @@ export function Navbar({ roomName, userDisplayName, isHost }: NavbarProps) {
         <nav className="fixed top-4 left-0 right-0 z-50 mx-auto max-w-7xl px-4">
             <div className="glass rounded-full px-6 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-6">
-                    <Link href="/" className="flex items-center gap-2 group">
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-violet-600 to-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-violet-500/20">
-                            <Play className="h-4 w-4 text-white fill-white ml-0.5" />
-                        </div>
-                        <span className="font-bold text-lg bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">vibe2g</span>
+                    <Link href="/" className="group">
+                        <img
+                            src="/logo.svg"
+                            alt="vibe2g"
+                            className="h-8 w-auto group-hover:scale-105 transition-transform"
+                        />
                     </Link>
 
                     {roomName && (
