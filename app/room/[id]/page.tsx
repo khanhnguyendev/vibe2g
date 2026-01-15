@@ -91,27 +91,33 @@ export default function RoomPage({
             console.warn('RoomPage: video.id is missing', video);
         }
 
-        // If room is empty, play it immediately as well (UX improvement)
+        // If room is empty, play it immediately ONLY (do not duplicate in queue)
         if (!videoState.current_video_id) {
+            console.log('RoomPage: Room empty, playing immediately');
             updateVideoState({
                 current_video_id: video.id,
                 current_title: video.title,
                 current_thumbnail: video.thumbnail,
                 is_playing: true,
             });
+        } else {
+            console.log('RoomPage: Room active, adding to queue');
+            addToQueue({
+                video_id: video.id,
+                title: video.title,
+                thumbnail: video.thumbnail,
+                added_by: userDisplayName
+            });
         }
-
-        addToQueue({
-            video_id: video.id,
-            title: video.title,
-            thumbnail: video.thumbnail,
-            added_by: userDisplayName
-        });
-        setSearchResults([]); // Clear search after adding
+        // Do NOT clear search results automatically - better UX for adding multiple
     };
 
     const handlePlayFromQueue = (video: any) => {
-        if (!isHost) return;
+        console.log('RoomPage: handlePlayFromQueue called', { video, isHost });
+        if (!isHost) {
+            console.warn('RoomPage: Play from queue rejected - not a host');
+            return;
+        }
         updateVideoState({
             current_video_id: video.video_id,
             current_title: video.title,
@@ -122,9 +128,11 @@ export default function RoomPage({
     };
 
     const handleVideoEnd = () => {
+        console.log('RoomPage: handleVideoEnd called', { queueLength: queue.length });
         if (queue.length > 0) {
             handlePlayFromQueue(queue[0]);
         } else {
+            console.log('RoomPage: Queue empty, clearing active state');
             // Room is empty now
             updateVideoState({
                 current_video_id: null,
