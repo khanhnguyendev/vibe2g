@@ -8,6 +8,8 @@ CREATE TABLE rooms (
   name TEXT,
   host_id TEXT,
   current_video_id TEXT,
+  current_title TEXT,
+  current_thumbnail TEXT,
   is_playing BOOLEAN DEFAULT false,
   playback_rate NUMERIC DEFAULT 1,
   last_synced_at TIMESTAMPTZ DEFAULT NOW(),

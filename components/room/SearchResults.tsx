@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Play, Info, Loader2, AlertCircle } from 'lucide-react';
+import { Plus, Play, Info, Loader2, AlertCircle, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SearchResult {
@@ -15,11 +15,12 @@ interface SearchResultsProps {
     results: SearchResult[];
     onAdd: (video: SearchResult) => void;
     onPreview: (video: SearchResult) => void;
+    onClear?: () => void;
     isLoading?: boolean;
     error?: string | null;
 }
 
-export function SearchResults({ results, onAdd, onPreview, isLoading, error }: SearchResultsProps) {
+export function SearchResults({ results, onAdd, onPreview, onClear, isLoading, error }: SearchResultsProps) {
     if (isLoading) {
         return (
             <div className="mt-6 flex flex-col items-center justify-center p-12 text-slate-500 animate-in fade-in duration-500">
@@ -50,7 +51,18 @@ export function SearchResults({ results, onAdd, onPreview, isLoading, error }: S
 
     return (
         <div className="mt-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
-            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider px-2">Results</h3>
+            <div className="flex items-center justify-between px-2">
+                <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Results</h3>
+                {onClear && (
+                    <button
+                        onClick={onClear}
+                        className="text-xs font-bold text-slate-500 hover:text-white transition-colors flex items-center gap-1.5"
+                    >
+                        <X className="h-3.5 w-3.5" />
+                        Clear
+                    </button>
+                )}
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {results.map((video) => (
                     <div

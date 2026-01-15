@@ -43,11 +43,6 @@ export default function RoomPage({
         }
     }, [searchParams.username]);
 
-    useEffect(() => {
-        console.log('RoomPage: Mounted');
-        return () => console.log('RoomPage: Unmounted');
-    }, []);
-
     const {
         videoState,
         messages,
@@ -91,14 +86,9 @@ export default function RoomPage({
     };
 
     const handleAddVideo = (video: any) => {
-        console.log('RoomPage: handleAddVideo called', { video, currentVideoId: videoState.current_video_id });
-        if (!video?.id) {
-            console.warn('RoomPage: video.id is missing', video);
-        }
+        if (!video?.id) return;
 
-        // If room is empty, play it immediately ONLY (do not duplicate in queue)
         if (!videoState.current_video_id) {
-            console.log('RoomPage: Room empty, playing immediately');
             updateVideoState({
                 current_video_id: video.id,
                 current_title: video.title,
@@ -106,7 +96,6 @@ export default function RoomPage({
                 is_playing: true,
             });
         } else {
-            console.log('RoomPage: Room active, adding to queue');
             addToQueue({
                 video_id: video.id,
                 title: video.title,
@@ -117,11 +106,7 @@ export default function RoomPage({
     };
 
     const handlePlayFromQueue = (video: any) => {
-        console.log('RoomPage: handlePlayFromQueue called', { video, isHost });
-        if (!isHost) {
-            console.warn('RoomPage: Play from queue rejected - not a host');
-            return;
-        }
+        if (!isHost) return;
         updateVideoState({
             current_video_id: video.video_id,
             current_title: video.title,
@@ -132,12 +117,9 @@ export default function RoomPage({
     };
 
     const handleVideoEnd = () => {
-        console.log('RoomPage: handleVideoEnd called', { queueLength: queue.length });
         if (queue.length > 0) {
             handlePlayFromQueue(queue[0]);
         } else {
-            console.log('RoomPage: Queue empty, clearing active state');
-            // Room is empty now
             updateVideoState({
                 current_video_id: null,
                 current_title: null,
@@ -176,6 +158,7 @@ export default function RoomPage({
                                 results={searchResults}
                                 onAdd={handleAddVideo}
                                 onPreview={setPreviewVideo}
+                                onClear={() => setSearchResults([])}
                                 isLoading={isSearching}
                                 error={searchError}
                             />
