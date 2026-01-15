@@ -66,20 +66,23 @@ export function VideoPlayer({ state, onUpdate, isHost = true }: VideoPlayerProps
     };
 
     const onStateChange: YouTubeProps['onStateChange'] = (event: YouTubeEvent) => {
-        const newState = event.data === 1;
-        setIsPlaying(newState);
+        // event.data: 1 = playing, 2 = paused, 3 = buffering, -1 = unstarted
+        const isPlayingState = event.data === 1;
+        const isPausedState = event.data === 2;
 
-        if (event.data === 1) {
+        setIsPlaying(isPlayingState);
+
+        if (isPlayingState) {
             startProgressTimer();
         } else {
             stopProgressTimer();
         }
 
-        // If change originated from user (not from state sync), notify remote
-        // In a real app, we'd need a way to distinguish user actions from API calls.
-        // For now, let's just push everything.
-        if (newState !== state.is_playing) {
-            onUpdate({ is_playing: newState });
+        // Only sync if the state is stable (Play or Pause) and it differs from intended state
+        if (isHost && (isPlayingState || isPausedState)) {
+            if (isPlayingState !== state.is_playing) {
+                onUpdate({ is_playing: isPlayingState });
+            }
         }
     };
 
@@ -165,7 +168,7 @@ export function VideoPlayer({ state, onUpdate, isHost = true }: VideoPlayerProps
                     height: '100%',
                     width: '100%',
                     playerVars: {
-                        autoplay: 0,
+                        autoplay: state.is_playing ? 1 : 0,
                         controls: 0,
                         modestbranding: 1,
                         rel: 0,
