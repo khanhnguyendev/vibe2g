@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Play, Info } from 'lucide-react';
+import { Plus, Play, Info, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SearchResult {
@@ -15,9 +15,19 @@ interface SearchResultsProps {
     results: SearchResult[];
     onAdd: (video: SearchResult) => void;
     onPreview: (video: SearchResult) => void;
+    isLoading?: boolean;
 }
 
-export function SearchResults({ results, onAdd, onPreview }: SearchResultsProps) {
+export function SearchResults({ results, onAdd, onPreview, isLoading }: SearchResultsProps) {
+    if (isLoading) {
+        return (
+            <div className="mt-6 flex flex-col items-center justify-center p-12 text-slate-500 animate-in fade-in duration-500">
+                <Loader2 className="h-8 w-8 animate-spin mb-4 text-violet-500" />
+                <p className="text-sm font-medium">Searching YouTube...</p>
+            </div>
+        );
+    }
+
     if (results.length === 0) return null;
 
     return (

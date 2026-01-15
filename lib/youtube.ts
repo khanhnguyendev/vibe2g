@@ -23,14 +23,62 @@ export const fetchOEmbedInfo = async (videoId: string) => {
     }
 };
 
-// Minimal Search shim (using a public search endpoint if available or just return a clear message if we need a key)
-export const searchYouTube = async (query: string): Promise<any[]> => {
-    // For now, if we don't have a backend proxy or API Key, we'll suggest using a URL
-    // But we can try a simple client-side fetch to a JSONP search if allowed, 
-    // or just return empty for keywords and tell user to use URLs for now if no key.
+const YOUTUBE_API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
 
-    // Suggestion: Request API Key from user or use a public CORS-friendly proxy if one exists.
-    // For this prototype, I'll implement a basic search fetch if possible, 
-    // otherwise I'll stick to URL support which is more reliable without keys.
-    return [];
+// Minimal Search shim
+export const searchYouTube = async (query: string): Promise<any[]> => {
+    if (!YOUTUBE_API_KEY) {
+        console.error('YouTube API Key missing');
+        return [];
+    }
+
+    try {
+        const response = await fetch(
+            `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(
+                query
+            )}&type=video&key=${YOUTUBE_API_KEY}`
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('YouTube API Error:', errorData);
+            return [];
+        }
+
+        const data = await response.json();
+
+        // Fetch durations separately because search API doesn't provide them
+        const videoIds = data.items.map((item: any) => item.id.videoId).join(',');
+        const detailsResponse = await fetch(
+            `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds}&key=${YOUTUBE_API_KEY}`
+        );
+        const detailsData = await detailsResponse.json();
+        const durationsMap = Object.fromEntries(
+            detailsData.items.map((item: any) => [item.id, parseISO8601Duration(item.contentDetails.duration)])
+        );
+
+        return data.items.map((item: any) => ({
+            id: item.id.videoId,
+            title: item.snippet.title,
+            thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
+            channelTitle: item.snippet.channelTitle,
+            duration: durationsMap[item.id.videoId] || '0:00',
+        }));
+    } catch (err) {
+        console.error('YouTube search failed:', err);
+        return [];
+    }
+};
+
+const parseISO8601Duration = (duration: string) => {
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) return '0:00';
+    const hours = parseInt(match[1] || '0');
+    const minutes = parseInt(match[2] || '0');
+    const seconds = parseInt(match[3] || '0');
+
+    if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
