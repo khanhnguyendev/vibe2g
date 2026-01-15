@@ -43,6 +43,11 @@ export default function RoomPage({
         }
     }, [searchParams.username]);
 
+    useEffect(() => {
+        console.log('RoomPage: Mounted');
+        return () => console.log('RoomPage: Unmounted');
+    }, []);
+
     const {
         videoState,
         messages,
@@ -86,7 +91,7 @@ export default function RoomPage({
     };
 
     const handleAddVideo = (video: any) => {
-        console.log('RoomPage: handleAddVideo called', video);
+        console.log('RoomPage: handleAddVideo called', { video, currentVideoId: videoState.current_video_id });
         if (!video?.id) {
             console.warn('RoomPage: video.id is missing', video);
         }
@@ -109,7 +114,6 @@ export default function RoomPage({
                 added_by: userDisplayName
             });
         }
-        // Do NOT clear search results automatically - better UX for adding multiple
     };
 
     const handlePlayFromQueue = (video: any) => {

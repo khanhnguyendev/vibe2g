@@ -189,24 +189,29 @@ export function useRoom(roomId: string, userName: string) {
     };
 
     const addToQueue = async (video: NewQueueItem) => {
-        console.log('useRoom: Adding to queue', video);
-        const { data, error } = await supabase.from('queue').insert({
+        console.log('useRoom: addToQueue start', video);
+        const insertData = {
             room_id: roomId,
             video_id: video.video_id,
             title: video.title,
             thumbnail: video.thumbnail,
             added_by: userName,
-        }).select().single();
+        };
+        console.log('useRoom: Attempting insert', insertData);
+
+        const { data, error } = await supabase.from('queue').insert(insertData).select().single();
 
         if (error) {
-            console.error('useRoom: Failed to add to queue', error);
+            console.error('useRoom: Failed to add to queue - SQL error', error);
         } else if (data) {
-            console.log('useRoom: Successfully added, updating local state');
+            console.log('useRoom: Successfully added to queue DB', data);
             // Optimistic update to avoid waiting for Realtime
             setQueue(prev => {
                 if (prev.find(item => item.id === data.id)) return prev;
                 return [...prev, data as QueueItem];
             });
+        } else {
+            console.warn('useRoom: insert succeeded but returned no data');
         }
     };
 
