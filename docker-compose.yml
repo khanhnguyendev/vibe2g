@@ -1,15 +1,22 @@
-version: '3.8'
+version: '3'
 
 services:
   web:
-    container_name: vibe2g
     build:
       context: .
-      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+        - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    container_name: vibe2g
     restart: always
     ports:
       - "3000:3000"
-    env_file:
-      - .env.local
     environment:
-      - NODE_ENV=production
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    networks:
+      - vibe2g-network
+
+networks:
+  vibe2g-network:
+    driver: bridge
