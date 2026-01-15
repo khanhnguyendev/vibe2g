@@ -87,6 +87,7 @@ export default function RoomPage({
                 roomName={roomName}
                 userDisplayName={userDisplayName}
                 viewerCount={viewerCount}
+                isHost={isHost}
             />
 
             {/* Main Layout */}

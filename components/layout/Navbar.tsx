@@ -1,14 +1,15 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
-import { Play, Users, User } from 'lucide-react';
+import { Play, Users, User, Crown } from 'lucide-react';
 
 interface NavbarProps {
     roomName?: string;
     userDisplayName?: string;
     viewerCount?: number;
+    isHost?: boolean;
 }
 
-export function Navbar({ roomName, userDisplayName, viewerCount }: NavbarProps) {
+export function Navbar({ roomName, userDisplayName, viewerCount, isHost }: NavbarProps) {
     return (
         <nav className="fixed top-4 left-0 right-0 z-50 mx-auto max-w-7xl px-4">
             <div className="glass rounded-full px-6 py-3 flex items-center justify-between">
@@ -31,7 +32,11 @@ export function Navbar({ roomName, userDisplayName, viewerCount }: NavbarProps) 
                     {userDisplayName ? (
                         <>
                             <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/5">
-                                <User className="h-3.5 w-3.5 text-violet-400" />
+                                {isHost ? (
+                                    <Crown className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400/20" />
+                                ) : (
+                                    <User className="h-3.5 w-3.5 text-violet-400" />
+                                )}
                                 <span className="text-xs font-semibold text-slate-300">{userDisplayName}</span>
                             </div>
 
