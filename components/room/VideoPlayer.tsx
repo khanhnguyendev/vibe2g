@@ -177,7 +177,13 @@ export function VideoPlayer({ state, onUpdate, onEnded, isHost = true }: VideoPl
                     }}
                     onReady={onReady}
                     onStateChange={onStateChange}
-                    onEnd={() => isHost && onEnded?.()}
+                    onEnd={() => {
+                        console.log('VideoPlayer: onEnd triggered', { isHost });
+                        if (isHost && onEnded) {
+                            console.log('VideoPlayer: calling onEnded callback');
+                            onEnded();
+                        }
+                    }}
                 />
             ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-brand-dark/50 backdrop-blur-sm border-2 border-dashed border-white/5 rounded-2xl m-2">

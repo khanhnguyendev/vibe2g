@@ -5,7 +5,7 @@ import { VideoPlayer } from '@/components/room/VideoPlayer';
 import { ChatSidebar } from '@/components/room/ChatSidebar';
 import { Queue } from '@/components/room/Queue';
 import { useRoom } from '@/hooks/useRoom';
-import { useState, useEffect, useMemo, use } from 'react';
+import { useState, useEffect, useMemo, use, useRef } from 'react';
 import { SearchBar } from '@/components/room/SearchBar';
 import { SearchResults } from '@/components/room/SearchResults';
 import { Users } from 'lucide-react';
@@ -58,6 +58,11 @@ export default function RoomPage({
         transferHost
     } = useRoom(params.id, userDisplayName || 'Joining...');
 
+    const queueRef = useRef(queue);
+    useEffect(() => {
+        queueRef.current = queue;
+    }, [queue]);
+
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [previewVideo, setPreviewVideo] = useState<any>(null);
     const [isSearching, setIsSearching] = useState(false);
@@ -106,7 +111,11 @@ export default function RoomPage({
     };
 
     const handlePlayFromQueue = (video: any) => {
-        if (!isHost) return;
+        console.log('RoomPage: handlePlayFromQueue called', { video, isHost });
+        if (!isHost) {
+            console.warn('RoomPage: Not the host, skipping play transition');
+            return;
+        }
         updateVideoState({
             current_video_id: video.video_id,
             current_title: video.title,
@@ -117,15 +126,22 @@ export default function RoomPage({
     };
 
     const handleVideoEnd = () => {
-        if (queue.length > 0) {
-            handlePlayFromQueue(queue[0]);
+        const currentQueue = queueRef.current;
+        console.log('RoomPage: handleVideoEnd called', { queueLength: currentQueue.length, isHost });
+
+        if (currentQueue.length > 0) {
+            console.log('RoomPage: Transitioning to next song in queue');
+            handlePlayFromQueue(currentQueue[0]);
         } else {
-            updateVideoState({
-                current_video_id: null,
-                current_title: null,
-                current_thumbnail: null,
-                is_playing: false,
-            });
+            console.log('RoomPage: Queue empty, clearing player state');
+            if (isHost) {
+                updateVideoState({
+                    current_video_id: null,
+                    current_title: null,
+                    current_thumbnail: null,
+                    is_playing: false,
+                });
+            }
         }
     };
 
