@@ -1,45 +1,30 @@
 'use client';
 
 import { Navbar } from '@/components/layout/Navbar';
-import { ArrowRight, Users, Zap, Shield } from 'lucide-react';
+import { ArrowRight, Users, Zap, Shield, Play } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { NameModal } from '@/components/room/NameModal';
+import { EntryModal } from '@/components/room/EntryModal';
 
 export default function Home() {
   const router = useRouter();
-  const [view, setView] = useState<'join' | 'create'>('create');
-  const [inputValue, setInputValue] = useState('');
-  const [isNameModalOpen, setIsNameModalOpen] = useState(false);
+  const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
 
-  const navigateToRoom = (name: string) => {
+  const handleEntryComplete = ({ type, roomId, roomName, username }: { type: 'join' | 'create', roomId?: string, roomName?: string, username: string }) => {
     const params = new URLSearchParams();
-    params.set('username', name);
+    params.set('username', username);
 
-    if (view === 'join') {
-      router.push(`/room/${inputValue.trim()}?${params.toString()}`);
-    } else {
-      const roomId = Math.random().toString(36).substring(2, 9);
-      params.set('name', inputValue.trim());
+    if (type === 'join') {
       router.push(`/room/${roomId}?${params.toString()}`);
-    }
-  };
-
-  const handleAction = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputValue.trim()) return;
-
-    const savedName = localStorage.getItem('vibe2g_username');
-    if (savedName) {
-      navigateToRoom(savedName);
     } else {
-      setIsNameModalOpen(true);
+      const generatedId = Math.random().toString(36).substring(2, 9);
+      if (roomName) params.set('name', roomName);
+      router.push(`/room/${generatedId}?${params.toString()}`);
     }
   };
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-brand-dark text-white selection:bg-brand-violet/30">
-      <Navbar />
 
       {/* Decorative Background Elements */}
       <div className="absolute top-[-10%] left-[-10%] h-[600px] w-[600px] rounded-full bg-violet-600/20 blur-[120px] pointer-events-none" />
@@ -47,7 +32,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-4xl mx-auto space-y-8 animate-in fade-in zoom-in duration-700">
+        <div className="text-center max-w-4xl mx-auto space-y-10 animate-in fade-in zoom-in duration-700">
 
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm font-medium text-slate-300 mb-6">
             <span className="relative flex h-2 w-2">
@@ -57,60 +42,33 @@ export default function Home() {
             v1.0 is now live
           </div>
 
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight">
-            Watch <span className="bg-gradient-to-r from-violet-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">Together</span>, <br />
-            Anywhere.
-          </h1>
+          <div className="space-y-6">
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter leading-none">
+              Watch <span className="bg-gradient-to-r from-violet-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">Together</span>
+            </h1>
+            <p className="mx-auto max-w-2xl text-xl md:text-2xl text-slate-400 leading-relaxed font-light">
+              Experience YouTube like never before. Synchronized playback, real-time chat, and perfectly shared moments with your inner circle.
+            </p>
+          </div>
 
-          <p className="mx-auto max-w-2xl text-lg md:text-xl text-slate-400 leading-relaxed">
-            The premium way to share moments. Watch YouTube in perfect sync with friends, in high-fidelity audio and zero latency.
-          </p>
-
-          {/* Join/Create Room Tabs */}
-          <div className="pt-8 max-w-md mx-auto w-full space-y-4">
-
-            <div className="flex bg-white/5 p-1 rounded-full border border-white/10 relative backdrop-blur-sm">
-              <button
-                onClick={() => setView('join')}
-                className={`flex-1 py-2.5 text-sm font-medium rounded-full transition-all duration-300 ${view === 'join' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}
-              >
-                Join Room
-              </button>
-              <button
-                onClick={() => setView('create')}
-                className={`flex-1 py-2.5 text-sm font-medium rounded-full transition-all duration-300 ${view === 'create' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}
-              >
-                Create Room
-              </button>
-            </div>
-
-            <form onSubmit={handleAction} className="relative flex items-center">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder={view === 'join' ? "Enter Room ID..." : "Enter Room Name..."}
-                className="w-full h-14 pl-6 pr-44 bg-white/5 border border-white/10 rounded-full text-white placeholder:text-slate-500 focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20 transition-all backdrop-blur-sm"
-              />
-              <button
-                type="submit"
-                disabled={view === 'join' && !inputValue.trim()}
-                className="absolute right-1 top-1 bottom-1 group inline-flex items-center justify-center rounded-full bg-slate-100 px-6 font-semibold text-slate-950 transition-all hover:bg-white hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {view === 'join' ? 'Join Now' : 'Create'}
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </form>
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={() => setIsEntryModalOpen(true)}
+              className="h-16 px-10 rounded-full bg-white text-slate-950 font-bold text-lg transition-all hover:scale-105 active:scale-95 shadow-xl shadow-white/10 flex items-center gap-3 group"
+            >
+              Start Vibing
+              <Play className="h-5 w-5 fill-slate-950 group-hover:translate-x-1 transition-transform" />
+            </button>
           </div>
 
         </div>
 
-        <NameModal
-          isOpen={isNameModalOpen}
-          onClose={() => setIsNameModalOpen(false)}
-          onSave={(name) => {
-            navigateToRoom(name);
-            setIsNameModalOpen(false);
+        <EntryModal
+          isOpen={isEntryModalOpen}
+          onClose={() => setIsEntryModalOpen(false)}
+          onComplete={(data) => {
+            handleEntryComplete(data);
+            setIsEntryModalOpen(false);
           }}
         />
 

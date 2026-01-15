@@ -9,7 +9,7 @@ import { useState, useEffect, useMemo, use } from 'react';
 import { SearchBar } from '@/components/room/SearchBar';
 import { SearchResults } from '@/components/room/SearchResults';
 import { Users } from 'lucide-react';
-import { NameModal } from '@/components/room/NameModal';
+import { EntryModal } from '@/components/room/EntryModal';
 
 export default function RoomPage({
     params: paramsPromise,
@@ -167,11 +167,12 @@ export default function RoomPage({
                 </div>
             )}
             {/* Name Modal for direct link entries */}
-            <NameModal
+            <EntryModal
                 isOpen={isNameModalOpen}
                 onClose={() => setIsNameModalOpen(false)}
-                onSave={(name) => {
-                    setUserDisplayName(name);
+                mode="name-only"
+                onComplete={({ username }) => {
+                    setUserDisplayName(username);
                     setIsNameModalOpen(false);
                 }}
             />
