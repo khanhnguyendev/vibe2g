@@ -170,7 +170,6 @@ export default function RoomPage({
             <Navbar
                 roomName={roomName}
                 userDisplayName={userDisplayName}
-                viewerCount={viewerCount}
                 isHost={isHost}
             />
 

@@ -5,11 +5,10 @@ import { Play, Users, User, Crown } from 'lucide-react';
 interface NavbarProps {
     roomName?: string;
     userDisplayName?: string;
-    viewerCount?: number;
     isHost?: boolean;
 }
 
-export function Navbar({ roomName, userDisplayName, viewerCount, isHost }: NavbarProps) {
+export function Navbar({ roomName, userDisplayName, isHost }: NavbarProps) {
     return (
         <nav className="fixed top-4 left-0 right-0 z-50 mx-auto max-w-7xl px-4">
             <div className="glass rounded-full px-6 py-3 flex items-center justify-between">
@@ -39,13 +38,6 @@ export function Navbar({ roomName, userDisplayName, viewerCount, isHost }: Navba
                                 )}
                                 <span className="text-xs font-semibold text-slate-300">{userDisplayName}</span>
                             </div>
-
-                            {viewerCount !== undefined && (
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-violet-500/10 rounded-full border border-violet-500/20">
-                                    <Users className="h-3.5 w-3.5 text-violet-400" />
-                                    <span className="text-xs font-bold text-violet-400">{viewerCount} online</span>
-                                </div>
-                            )}
                         </>
                     ) : (
                         <span className="text-[10px] sm:text-xs font-medium text-slate-500 uppercase tracking-widest">
