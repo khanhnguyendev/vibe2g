@@ -286,9 +286,18 @@ export function useRoom(roomId: string, userName: string) {
 
     const removeFromQueue = async (id: number, silent = false) => {
         const itemToRemove = queue.find(item => item.id === id);
+
+        // Optimistic update
+        setQueue(prev => prev.filter(item => item.id !== id));
+
         const promise = (async () => {
             const { error } = await supabase.from('queue').delete().eq('id', id);
-            if (error) throw error;
+            if (error) {
+                // Rollback on error
+                const { data } = await supabase.from('queue').select('*').eq('room_id', roomId).order('created_at', { ascending: true });
+                if (data) setQueue(data as any);
+                throw error;
+            }
         })();
 
         if (itemToRemove && !silent) {
