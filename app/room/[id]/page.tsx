@@ -143,13 +143,15 @@ export default function RoomPage({
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-full min-h-0">
 
                     {/* Left Column - Video Player & Search (Takes 3 cols) */}
-                    <div className="lg:col-span-3 flex flex-col gap-4 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10">
-                        <VideoPlayer
-                            state={videoState}
-                            onUpdate={updateVideoState}
-                            onEnded={handleVideoEnd}
-                            isHost={isHost}
-                        />
+                    <div className="lg:col-span-3 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar relative">
+                        <div className="sticky top-0 z-30 pb-2 bg-brand-dark/50 backdrop-blur-md -mx-2 px-2 pt-2">
+                            <VideoPlayer
+                                state={videoState}
+                                onUpdate={updateVideoState}
+                                onEnded={handleVideoEnd}
+                                isHost={isHost}
+                            />
+                        </div>
 
                         {/* Search Section */}
                         <div className="glass rounded-2xl p-6">
@@ -165,7 +167,7 @@ export default function RoomPage({
                         </div>
 
                         {/* Queue Component */}
-                        <div className="flex-1 min-h-0">
+                        <div className="min-h-0">
                             <Queue
                                 items={queue}
                                 nowPlaying={{

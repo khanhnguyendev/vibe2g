@@ -25,7 +25,7 @@ interface QueueProps {
 
 export function Queue({ items, nowPlaying, onPlay, onRemove, isHost }: QueueProps) {
     return (
-        <div className="flex-1 glass rounded-2xl p-6 flex flex-col h-full min-h-[400px]">
+        <div className="glass rounded-2xl p-6 flex flex-col min-h-[400px]">
             {/* Now Playing Section */}
             {nowPlaying?.video_id && (
                 <div className="mb-6">
@@ -62,7 +62,7 @@ export function Queue({ items, nowPlaying, onPlay, onRemove, isHost }: QueueProp
                 </span>
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+            <div className="space-y-3">
                 {items.length === 0 ? (
                     <div className="h-32 flex flex-col items-center justify-center text-slate-500 border-2 border-dashed border-white/5 rounded-xl">
                         <p className="text-sm">Queue is empty</p>
