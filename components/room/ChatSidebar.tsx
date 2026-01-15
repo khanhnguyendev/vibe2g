@@ -111,21 +111,31 @@ export function ChatSidebar({
                         onClick={() => setView('chat')}
                         title="Chat"
                         className={cn(
-                            "flex items-center justify-center p-2 rounded-lg transition-all",
+                            "flex items-center justify-center p-2 rounded-lg transition-all relative",
                             view === 'chat' ? "bg-white text-slate-950 shadow-lg" : "text-slate-400 hover:text-white"
                         )}
                     >
                         <MessageSquare className="h-4 w-4" />
+                        {messages.length > 0 && (
+                            <span className="absolute -top-1 -right-1 h-3.5 w-3.5 bg-violet-500 text-[8px] font-bold text-white rounded-full flex items-center justify-center ring-2 ring-black">
+                                {messages.length > 99 ? '99+' : messages.length}
+                            </span>
+                        )}
                     </button>
                     <button
                         onClick={() => setView('users')}
                         title="Participants"
                         className={cn(
-                            "flex items-center justify-center p-2 rounded-lg transition-all",
+                            "flex items-center justify-center p-2 rounded-lg transition-all relative",
                             view === 'users' ? "bg-white text-slate-950 shadow-lg" : "text-slate-400 hover:text-white"
                         )}
                     >
                         <Users className="h-4 w-4" />
+                        {activeUsers.length > 0 && (
+                            <span className="absolute -top-1 -right-1 h-3.5 w-3.5 bg-emerald-500 text-[8px] font-bold text-white rounded-full flex items-center justify-center ring-2 ring-black shadow-sm">
+                                {activeUsers.length}
+                            </span>
+                        )}
                     </button>
                 </div>
             </div>
