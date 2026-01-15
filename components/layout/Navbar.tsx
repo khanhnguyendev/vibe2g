@@ -14,12 +14,9 @@ export function Navbar() {
                 </Link>
 
                 <div className="flex items-center gap-4">
-                    <Link href="/login">
-                        <Button variant="ghost" size="sm">Log In</Button>
-                    </Link>
-                    <Link href="/room/demo">
-                        <Button variant="primary" size="sm">Get Started</Button>
-                    </Link>
+                    <span className="text-xs font-medium text-slate-500 uppercase tracking-widest hidden sm:block">
+                        Real-time YouTube Sync
+                    </span>
                 </div>
             </div>
         </nav>
