@@ -9,7 +9,7 @@ interface NavbarProps {
     onShare?: () => void;
 }
 
-export function Navbar({ roomName, userDisplayName, isHost }: NavbarProps) {
+export function Navbar({ roomName, userDisplayName, isHost, onShare }: NavbarProps) {
     return (
         <nav className="fixed top-4 left-0 right-0 z-50 mx-auto max-w-7xl px-4">
             <div className="glass rounded-full px-6 py-3 flex items-center justify-between">
