@@ -136,9 +136,11 @@ export function useRoom(roomId: string, userName: string) {
             })
             .on('presence', { event: 'leave' }, ({ key, leftPresences }: any) => {
                 leftPresences.forEach((p: any) => {
-                    toast.info(`${p.user_name || 'Someone'} left the room`, {
-                        icon: '🚪',
-                    });
+                    if (p.user_id !== currentUserId) {
+                        toast.info(`${p.user_name || 'Someone'} left the room`, {
+                            icon: '🚪',
+                        });
+                    }
                 });
             })
             .on('presence', { event: 'sync' }, () => {
