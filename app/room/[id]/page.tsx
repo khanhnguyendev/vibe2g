@@ -203,7 +203,9 @@ export default function RoomPage({
                                 state={videoState}
                                 onUpdate={updateVideoState}
                                 onEnded={handleVideoEnd}
+                                onNext={handleVideoEnd}
                                 isHost={isHost}
+                                hasNext={queue.length > 0}
                             />
                         </div>
 

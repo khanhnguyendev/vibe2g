@@ -17,12 +17,15 @@ interface VideoPlayerProps {
     state: RoomState;
     onUpdate: (updates: Partial<RoomState>) => void;
     onEnded?: () => void;
+    onNext?: () => void;
     isHost?: boolean;
+    hasNext?: boolean;
 }
 
-export function VideoPlayer({ state, onUpdate, onEnded, isHost = true }: VideoPlayerProps) {
+export function VideoPlayer({ state, onUpdate, onEnded, onNext, isHost = true, hasNext = false }: VideoPlayerProps) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(100);
+
     const [isMuted, setIsMuted] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -225,7 +228,14 @@ export function VideoPlayer({ state, onUpdate, onEnded, isHost = true }: VideoPl
                                 {isPlaying ? <Pause className="h-6 w-6 fill-white" /> : <Play className="h-6 w-6 fill-white" />}
                             </button>
 
-                            <button className="p-2 hover:bg-white/10 rounded-full transition-colors active:scale-95">
+                            <button
+                                onClick={onNext}
+                                disabled={!isHost || !hasNext}
+                                className={cn(
+                                    "p-2 hover:bg-white/10 rounded-full transition-colors active:scale-95",
+                                    (!isHost || !hasNext) && "opacity-50 cursor-not-allowed"
+                                )}
+                            >
                                 <SkipForward className="h-5 w-5" />
                             </button>
 
