@@ -17,7 +17,7 @@ export function Navbar({ roomName, userDisplayName, isHost }: NavbarProps) {
                         <img
                             src="/logo.png"
                             alt="vibe2g"
-                            className="h-10 w-auto group-hover:scale-105 transition-transform"
+                            className="h-10 w-auto group-hover:scale-105 transition-transform mix-blend-screen"
                         />
                     </Link>
 
