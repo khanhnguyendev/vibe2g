@@ -11,9 +11,10 @@ interface NavbarProps {
     userDisplayName?: string;
     isHost?: boolean;
     onShare?: () => void;
+    onRename?: () => void;
 }
 
-export function Navbar({ roomName, roomId, userDisplayName, isHost, onShare }: NavbarProps) {
+export function Navbar({ roomName, roomId, userDisplayName, isHost, onShare, onRename }: NavbarProps) {
     const [hasCopied, setHasCopied] = useState(false);
 
     const handleCopyId = () => {
