@@ -1,6 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
-import { Play, Users, User, Crown, Share2, Copy } from 'lucide-react';
+import { Play, Users, User, Crown, Share2, Copy, Check } from 'lucide-react';
+import { useState } from 'react';
 
 interface NavbarProps {
     roomName?: string;
@@ -11,6 +14,15 @@ interface NavbarProps {
 }
 
 export function Navbar({ roomName, roomId, userDisplayName, isHost, onShare }: NavbarProps) {
+    const [hasCopied, setHasCopied] = useState(false);
+
+    const handleCopyId = () => {
+        if (!roomId) return;
+        navigator.clipboard.writeText(roomId);
+        setHasCopied(true);
+        setTimeout(() => setHasCopied(false), 2000);
+    };
+
     return (
         <nav className="fixed top-4 left-0 right-0 z-50 mx-auto max-w-7xl px-4">
             <div className="glass rounded-full px-6 py-3 flex items-center justify-between">
@@ -37,14 +49,21 @@ export function Navbar({ roomName, roomId, userDisplayName, isHost, onShare }: N
                             {/* Room ID Pill */}
                             {roomId && (
                                 <button
-                                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group/id"
+                                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group/id min-w-[100px]"
                                     title="Copy Room ID"
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(roomId);
-                                    }}
+                                    onClick={handleCopyId}
                                 >
-                                    <span className="text-[10px] font-mono text-slate-400 group-hover/id:text-violet-300 transition-colors">#{roomId}</span>
-                                    <Copy className="h-3 w-3 text-slate-600 group-hover/id:text-violet-400" />
+                                    {hasCopied ? (
+                                        <>
+                                            <span className="text-[10px] font-bold text-emerald-400">Copied!</span>
+                                            <Check className="h-3 w-3 text-emerald-400" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="text-[10px] font-mono text-slate-400 group-hover/id:text-violet-300 transition-colors">#{roomId}</span>
+                                            <Copy className="h-3 w-3 text-slate-600 group-hover/id:text-violet-400" />
+                                        </>
+                                    )}
                                 </button>
                             )}
                         </div>
