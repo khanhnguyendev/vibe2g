@@ -208,8 +208,11 @@ export function ChatSidebar({
                                         )}
                                     >
                                         {!isMe && showName && (
-                                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">
+                                            <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">
                                                 {msg.user_name}
+                                                {msg.user_id === hostId && (
+                                                    <Crown className="h-3 w-3 text-yellow-500 fill-yellow-500/20" />
+                                                )}
                                             </span>
                                         )}
 
