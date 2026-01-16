@@ -62,6 +62,7 @@ export function useRoom(roomId: string, userName: string) {
     const [activeUsers, setActiveUsers] = useState<any[]>([]);
     const channelRef = useRef<RealtimeChannel | null>(null);
     const prevVideoIdRef = useRef<string | null>(null);
+    const hasSynced = useRef(false);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -80,6 +81,8 @@ export function useRoom(roomId: string, userName: string) {
     // Initial Fetch & Subscribe
     useEffect(() => {
         if (!roomId || !currentUserId) return;
+
+        hasSynced.current = false; // Reset sync state on mount/change
 
         const channel = supabase.channel(`room:${roomId}`, {
             config: {
@@ -120,6 +123,9 @@ export function useRoom(roomId: string, userName: string) {
         // Presence Logic
         (channel as any)
             .on('presence', { event: 'join' }, ({ key, newPresences }: any) => {
+                // Ignore initial joins until synced
+                if (!hasSynced.current) return;
+
                 newPresences.forEach((p: any) => {
                     if (p.user_id !== currentUserId) {
                         toast.info(`${p.user_name || 'Someone'} joined the room`, {
@@ -147,6 +153,7 @@ export function useRoom(roomId: string, userName: string) {
                 });
                 setActiveUsers(active);
                 setViewerCount(active.length);
+                hasSynced.current = true; // Mark as synced after initial state
             });
 
         // Postgres Changes
