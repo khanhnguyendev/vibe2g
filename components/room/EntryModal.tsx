@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, ArrowRight, X, Play, Plus, Hash } from 'lucide-react';
+import { User, ArrowRight, X, Play, Plus, Hash, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 
@@ -10,6 +10,20 @@ interface EntryModalProps {
     onClose: () => void;
     onComplete: (data: { type: 'join' | 'create', roomId?: string, roomName?: string, username: string }) => void;
     mode?: 'full' | 'name-only';
+}
+
+function getRelativeTime(dateString: string) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
 }
 
 export function EntryModal({ isOpen, onClose, onComplete, mode = 'full' }: EntryModalProps) {
@@ -225,6 +239,8 @@ export function EntryModal({ isOpen, onClose, onComplete, mode = 'full' }: Entry
                                                             </div>
                                                             <span className="text-[11px] text-slate-400">
                                                                 Hosted by <span className="text-slate-200 font-medium">{room.host_name || 'Unknown'}</span>
+                                                                <span className="mx-1.5 text-slate-600">•</span>
+                                                                {getRelativeTime(room.created_at)}
                                                             </span>
                                                         </div>
                                                     </div>
