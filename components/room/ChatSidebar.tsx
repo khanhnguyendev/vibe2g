@@ -197,7 +197,7 @@ export function ChatSidebar({
                         <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar min-h-0 bg-black/5">
                             {messages.map((msg, idx) => {
                                 const isMe = msg.user_id === currentUserId;
-                                const showName = idx === 0 || messages[idx - 1].user_id !== msg.user_id;
+                                const showName = true;
 
                                 return (
                                     <div
