@@ -15,6 +15,7 @@ CREATE TABLE rooms (
   is_playing BOOLEAN DEFAULT false,
   playback_rate NUMERIC DEFAULT 1,
   last_synced_at TIMESTAMPTZ DEFAULT NOW(),
+  is_public BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

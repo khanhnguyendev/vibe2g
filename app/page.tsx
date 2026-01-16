@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { EntryModal } from '@/components/room/EntryModal';
 import { supabase } from '@/lib/supabase';
+import { LiveRooms } from '@/components/room/LiveRooms';
 
 export default function Home() {
   const router = useRouter();
@@ -106,8 +107,12 @@ export default function Home() {
           }}
         />
 
+        <div className="mt-20 w-full max-w-6xl px-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
+          <LiveRooms />
+        </div>
+
         {/* Feature Grid */}
-        <div className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full px-4">
+        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full px-4">
           <FeatureCard
             icon={<Zap className="h-6 w-6 text-yellow-400" />}
             title="Zero Latency"
