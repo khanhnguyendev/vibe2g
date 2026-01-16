@@ -170,46 +170,59 @@ export function EntryModal({ isOpen, onClose, onComplete, mode = 'full' }: Entry
                             </div>
 
                             {/* Live Rooms List in Join View */}
-                            {view === 'join' && rooms.length > 0 && (
+                            {view === 'join' && (
                                 <div className="pt-6 border-t border-white/10">
                                     <div className="flex items-center gap-2 mb-4">
                                         <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
                                         <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Live Now</h3>
                                     </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                                        {rooms.map((room) => (
-                                            <div
-                                                key={room.id}
-                                                onClick={() => handleRoomSelect(room.id)}
-                                                className="group cursor-pointer bg-white/5 hover:bg-white/10 border border-white/5 hover:border-violet-500/50 rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
-                                            >
-                                                <div className="aspect-video relative bg-black">
-                                                    {room.current_thumbnail ? (
-                                                        <img
-                                                            src={room.current_thumbnail}
-                                                            alt={room.name}
-                                                            className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full bg-gradient-to-br from-violet-900/40 to-black" />
-                                                    )}
-                                                    {room.is_playing && (
-                                                        <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-red-500/80 text-[10px] font-bold text-white uppercase flex items-center gap-1">
-                                                            <Play className="h-2 w-2 fill-current" /> Live
-                                                        </div>
-                                                    )}
+
+                                    {rooms.length > 0 ? (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                            {rooms.map((room) => (
+                                                <div
+                                                    key={room.id}
+                                                    onClick={() => handleRoomSelect(room.id)}
+                                                    className="group cursor-pointer bg-white/5 hover:bg-white/10 border border-white/5 hover:border-violet-500/50 rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
+                                                >
+                                                    <div className="aspect-video relative bg-black">
+                                                        {room.current_thumbnail ? (
+                                                            <img
+                                                                src={room.current_thumbnail}
+                                                                alt={room.name}
+                                                                className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                                                            />
+                                                        ) : (
+                                                            <div className="w-full h-full bg-gradient-to-br from-violet-900/40 to-black" />
+                                                        )}
+                                                        {room.is_playing && (
+                                                            <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-red-500/80 text-[10px] font-bold text-white uppercase flex items-center gap-1">
+                                                                <Play className="h-2 w-2 fill-current" /> Live
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="p-3">
+                                                        <h4 className="font-bold text-white text-sm line-clamp-1 group-hover:text-violet-300 transition-colors">
+                                                            {room.current_title || room.name}
+                                                        </h4>
+                                                        <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                                                            <User className="h-3 w-3" /> {room.id}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div className="p-3">
-                                                    <h4 className="font-bold text-white text-sm line-clamp-1 group-hover:text-violet-300 transition-colors">
-                                                        {room.current_title || room.name}
-                                                    </h4>
-                                                    <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-                                                        <User className="h-3 w-3" /> {room.id}
-                                                    </p>
-                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center py-8 px-4 rounded-2xl bg-white/5 border border-dashed border-white/10 text-center">
+                                            <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                                                <Play className="h-5 w-5 text-slate-500" />
                                             </div>
-                                        ))}
-                                    </div>
+                                            <p className="text-sm font-medium text-slate-300">No active rooms found</p>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                Be the first to <button onClick={() => setView('create')} className="text-violet-400 hover:text-violet-300 underline font-medium">create one</button>!
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
