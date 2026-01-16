@@ -23,9 +23,24 @@ export default function RoomPage({
     const params = use(paramsPromise);
     const searchParams = use(searchParamsPromise);
 
-    const roomName = searchParams.name || `Room: ${params.id}`;
+    const {
+        videoState,
+        messages,
+        queue,
+        viewerCount,
+        isHost,
+        hostId,
+        activeUsers,
+        updateVideoState,
+        sendMessage,
+        addToQueue,
+        removeFromQueue,
+        transferHost,
+        currentUserId
+    } = useRoom(params.id, userDisplayName || 'Joining...');
 
-    // Resolve user name: URL param -> LocalStorage -> Trigger Modal
+    // Prefer fetched name, fallback to URL param, then ID
+    const roomName = videoState.roomName || searchParams.name || `Room: ${params.id}`;
     const [userDisplayName, setUserDisplayName] = useState<string>('');
     const [isNameModalOpen, setIsNameModalOpen] = useState(false);
 

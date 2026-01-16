@@ -26,7 +26,7 @@ type QueueItem = {
 
 type NewQueueItem = Omit<QueueItem, 'id'>;
 
-type RoomState = {
+interface RoomState {
     current_video_id: string | null;
     current_title: string | null;
     current_thumbnail: string | null;
@@ -36,20 +36,24 @@ type RoomState = {
     playback_rate: number;
     last_synced_at: string;
     host_id: string | null;
+    roomName: string | null;
+}
+
+const initialState: RoomState = {
+    current_video_id: null,
+    current_title: null,
+    current_thumbnail: null,
+    current_channel_title: null,
+    current_view_count: null,
+    is_playing: false,
+    playback_rate: 1,
+    last_synced_at: new Date().toISOString(),
+    host_id: null,
+    roomName: null,
 };
 
 export function useRoom(roomId: string, userName: string) {
-    const [videoState, setVideoState] = useState<RoomState>({
-        current_video_id: null,
-        current_title: null,
-        current_thumbnail: null,
-        current_channel_title: null,
-        current_view_count: null,
-        is_playing: false,
-        playback_rate: 1,
-        last_synced_at: new Date().toISOString(),
-        host_id: null,
-    });
+    const [videoState, setVideoState] = useState<RoomState>(initialState);
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -86,7 +90,12 @@ export function useRoom(roomId: string, userName: string) {
         });
 
         const fetchState = async () => {
-            const { data: room } = await supabase.from('rooms').select('*').eq('id', roomId).single();
+            const { data: room, error } = await supabase.from('rooms').select('*').eq('id', roomId).single();
+            if (error) {
+                console.error('Error fetching room:', error);
+                return;
+            }
+
             if (room) {
                 setVideoState({
                     current_video_id: room.current_video_id || null,
@@ -98,6 +107,7 @@ export function useRoom(roomId: string, userName: string) {
                     playback_rate: room.playback_rate,
                     last_synced_at: room.last_synced_at,
                     host_id: room.host_id,
+                    roomName: room.name || null,
                 });
                 setHostId(room.host_id);
             }
