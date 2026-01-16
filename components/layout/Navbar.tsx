@@ -26,7 +26,7 @@ export function Navbar({ roomName, roomId, userDisplayName, isHost, onShare }: N
     return (
         <nav className="fixed top-4 left-0 right-0 z-50 mx-auto max-w-7xl px-4">
             <div className="glass rounded-full px-6 py-3 flex items-center justify-between">
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-4">
                     <Link href="/" className="group">
                         <img
                             src="/logo.svg"
@@ -36,42 +36,37 @@ export function Navbar({ roomName, roomId, userDisplayName, isHost, onShare }: N
                     </Link>
 
                     {roomName && (
-                        <>
-                            {/* Vertical Separator */}
-                            <div className="h-8 w-px bg-white/10 mx-2" />
-
-                            <div className="flex items-center gap-3">
-                                {/* Room Name Pill */}
-                                <div className="hidden sm:flex items-center px-4 py-1.5 rounded-full bg-white/5 border border-white/5">
-                                    <h1 className="font-bold text-white text-sm tracking-tight truncate max-w-[200px]" title={roomName}>
-                                        {roomName}
-                                    </h1>
-                                </div>
-                                {/* Mobile Room Name (Simplified) */}
-                                <h1 className="sm:hidden font-bold text-white text-sm truncate max-w-[120px]">{roomName}</h1>
-
-                                {/* Room ID Pill */}
-                                {roomId && (
-                                    <button
-                                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group/id min-w-[100px]"
-                                        title="Copy Room ID"
-                                        onClick={handleCopyId}
-                                    >
-                                        {hasCopied ? (
-                                            <>
-                                                <span className="text-[10px] font-bold text-emerald-400">Copied!</span>
-                                                <Check className="h-3 w-3 text-emerald-400" />
-                                            </>
-                                        ) : (
-                                            <>
-                                                <span className="text-[10px] font-mono text-slate-400 group-hover/id:text-violet-300 transition-colors">#{roomId}</span>
-                                                <Copy className="h-3 w-3 text-slate-600 group-hover/id:text-violet-400" />
-                                            </>
-                                        )}
-                                    </button>
-                                )}
+                        <div className="flex items-center gap-3 pl-4 border-l border-white/10 h-8">
+                            {/* Room Name Pill */}
+                            <div className="hidden sm:flex items-center px-4 py-1.5 rounded-full bg-white/5 border border-white/5">
+                                <h1 className="font-bold text-white text-sm tracking-tight truncate max-w-[200px]" title={roomName}>
+                                    {roomName}
+                                </h1>
                             </div>
-                        </>
+                            {/* Mobile Room Name (Simplified) */}
+                            <h1 className="sm:hidden font-bold text-white text-sm truncate max-w-[120px]">{roomName}</h1>
+
+                            {/* Room ID Pill */}
+                            {roomId && (
+                                <button
+                                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group/id min-w-[100px]"
+                                    title="Copy Room ID"
+                                    onClick={handleCopyId}
+                                >
+                                    {hasCopied ? (
+                                        <>
+                                            <span className="text-[10px] font-bold text-emerald-400">Copied!</span>
+                                            <Check className="h-3 w-3 text-emerald-400" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span className="text-[10px] font-mono text-slate-400 group-hover/id:text-violet-300 transition-colors">#{roomId}</span>
+                                            <Copy className="h-3 w-3 text-slate-600 group-hover/id:text-violet-400" />
+                                        </>
+                                    )}
+                                </button>
+                            )}
+                        </div>
                     )}
                 </div>
 
