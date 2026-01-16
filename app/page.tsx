@@ -36,6 +36,7 @@ export default function Home() {
           id: generatedId,
           name: roomName || `Room: ${generatedId}`,
           host_id: userId,
+          host_name: username,
         });
         if (error) throw error;
         return { generatedId, roomName };

@@ -201,13 +201,32 @@ export function EntryModal({ isOpen, onClose, onComplete, mode = 'full' }: Entry
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div className="p-3">
-                                                        <h4 className="font-bold text-white text-sm line-clamp-1 group-hover:text-violet-300 transition-colors">
-                                                            {room.current_title || room.name}
-                                                        </h4>
-                                                        <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-                                                            <User className="h-3 w-3" /> {room.id}
-                                                        </p>
+                                                    <div className="p-4 pt-3 flex flex-col gap-2">
+                                                        <div className="flex items-start justify-between gap-2">
+                                                            <h4 className="font-bold text-white text-base line-clamp-1 group-hover:text-violet-300 transition-colors" title={room.current_title || room.name}>
+                                                                {room.name}
+                                                            </h4>
+                                                            <span className="px-1.5 py-0.5 rounded-md bg-white/10 text-[10px] font-mono text-slate-400 border border-white/5 whitespace-nowrap">
+                                                                {room.id}
+                                                            </span>
+                                                        </div>
+
+                                                        <div className="text-xs text-slate-400 line-clamp-1">
+                                                            {room.current_title ? (
+                                                                <span className="text-slate-300">Playing: {room.current_title}</span>
+                                                            ) : (
+                                                                <span className="text-slate-500 italic">No video playing</span>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="mt-1 pt-2 border-t border-white/5 flex items-center gap-1.5">
+                                                            <div className="h-4 w-4 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-[8px] text-white font-bold">
+                                                                {room.host_name ? room.host_name[0].toUpperCase() : 'H'}
+                                                            </div>
+                                                            <span className="text-[11px] text-slate-400">
+                                                                Hosted by <span className="text-slate-200 font-medium">{room.host_name || 'Unknown'}</span>
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}
