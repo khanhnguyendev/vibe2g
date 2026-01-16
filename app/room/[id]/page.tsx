@@ -188,6 +188,7 @@ export default function RoomPage({
         <div className="h-screen bg-brand-dark flex flex-col overflow-hidden">
             <Navbar
                 roomName={roomName}
+                roomId={params.id}
                 userDisplayName={userDisplayName}
                 isHost={isHost}
                 onShare={() => {
