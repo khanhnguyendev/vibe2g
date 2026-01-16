@@ -16,9 +16,6 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "vibe2g - Watch Together",
   description: "Real-time collaborative video watching platform.",
-  icons: {
-    icon: '/icon.svg',
-  },
 };
 
 export default function RootLayout({

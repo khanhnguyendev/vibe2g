@@ -15,9 +15,9 @@ export function Navbar({ roomName, userDisplayName, isHost }: NavbarProps) {
                 <div className="flex items-center gap-6">
                     <Link href="/" className="group">
                         <img
-                            src="/logo.svg"
+                            src="/logo.png"
                             alt="vibe2g"
-                            className="h-8 w-auto group-hover:scale-105 transition-transform"
+                            className="h-10 w-auto group-hover:scale-105 transition-transform"
                         />
                     </Link>
 
