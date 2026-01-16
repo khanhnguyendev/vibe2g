@@ -181,6 +181,7 @@ export function useRoom(roomId: string, userName: string) {
                     playback_rate: newRow.playback_rate,
                     last_synced_at: newRow.last_synced_at,
                     host_id: newRow.host_id,
+                    roomName: newRow.name || null,
                 });
 
                 if (newRow.host_id !== hostId && newRow.host_id) {
