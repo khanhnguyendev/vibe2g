@@ -11,10 +11,9 @@ interface NavbarProps {
     userDisplayName?: string;
     isHost?: boolean;
     onShare?: () => void;
-    onRename?: () => void;
 }
 
-export function Navbar({ roomName, roomId, userDisplayName, isHost, onShare, onRename }: NavbarProps) {
+export function Navbar({ roomName, roomId, userDisplayName, isHost, onShare }: NavbarProps) {
     const [hasCopied, setHasCopied] = useState(false);
 
     const handleCopyId = () => {
@@ -84,18 +83,18 @@ export function Navbar({ roomName, roomId, userDisplayName, isHost, onShare, onR
 
                     {userDisplayName ? (
                         <>
-                            <button
-                                onClick={onRename}
-                                className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/5 hover:bg-white/10 hover:border-white/10 transition-colors group/user"
-                                title="Change Name"
-                            >
-                                {isHost ? (
-                                    <Crown className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400/20" />
-                                ) : (
-                                    <User className="h-3.5 w-3.5 text-violet-400" />
-                                )}
-                                <span className="text-xs font-semibold text-slate-300 group-hover/user:text-white transition-colors">{userDisplayName}</span>
-                            </button>
+                            {userDisplayName ? (
+                                <>
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/5">
+                                        {isHost ? (
+                                            <Crown className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400/20" />
+                                        ) : (
+                                            <User className="h-3.5 w-3.5 text-violet-400" />
+                                        )}
+                                        <span className="text-xs font-semibold text-slate-300">{userDisplayName}</span>
+                                    </div>
+                                </>
+                            ) : (
                         </>
                     ) : (
                         <span className="text-[10px] sm:text-xs font-medium text-slate-500 uppercase tracking-widest">

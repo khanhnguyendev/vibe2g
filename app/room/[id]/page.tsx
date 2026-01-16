@@ -197,7 +197,6 @@ export default function RoomPage({
                     navigator.clipboard.writeText(url);
                     toast.success('Room link copied to clipboard!');
                 }}
-                onRename={() => setIsNameModalOpen(true)}
             />
 
             {/* Main Layout */}
