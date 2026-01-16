@@ -15,11 +15,26 @@ export function Navbar({ roomName, roomId, userDisplayName, isHost, onShare }: N
         <nav className="fixed top-4 left-0 right-0 z-50 mx-auto max-w-7xl px-4">
             <div className="glass rounded-full px-6 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-6">
+                    <Link href="/" className="group">
+                        <img
+                            src="/logo.svg"
+                            alt="vibe2g"
+                            className="h-10 w-auto group-hover:scale-105 transition-transform"
+                        />
+                    </Link>
+
                     {roomName && (
-                        <div className="flex items-center gap-3 pl-6 ml-2 border-l border-white/10 h-8">
-                            <h1 className="font-bold text-white text-lg tracking-tight truncate max-w-[150px] sm:max-w-[300px]" title={roomName}>
+                        <div className="flex flex-col justify-center pl-6 ml-2 border-l border-white/10 h-8">
+                            <h1 className="font-bold text-white text-sm sm:text-base tracking-tight truncate max-w-[150px] sm:max-w-[300px]" title={roomName}>
                                 {roomName}
                             </h1>
+                            {roomId && (
+                                <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-copy" title="Copy Room ID" onClick={() => {
+                                    navigator.clipboard.writeText(roomId);
+                                }}>
+                                    <span className="text-[10px] font-mono text-slate-400">#{roomId}</span>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
