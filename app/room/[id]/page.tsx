@@ -186,10 +186,14 @@ export default function RoomPage({
 
     return (
         <div className="h-screen bg-brand-dark flex flex-col overflow-hidden">
-            <Navbar
-                roomName={roomName}
-                userDisplayName={userDisplayName}
-                isHost={isHost}
+            roomName={roomName}
+            userDisplayName={userDisplayName}
+            isHost={isHost}
+            onShare={() => {
+                const url = window.location.href;
+                navigator.clipboard.writeText(url);
+                toast.success('Room link copied to clipboard!');
+            }}
             />
 
             {/* Main Layout */}

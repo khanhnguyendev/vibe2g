@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
-import { Play, Users, User, Crown } from 'lucide-react';
+import { Play, Users, User, Crown, Share2, Copy } from 'lucide-react';
 
 interface NavbarProps {
     roomName?: string;
     userDisplayName?: string;
     isHost?: boolean;
+    onShare?: () => void;
 }
 
 export function Navbar({ roomName, userDisplayName, isHost }: NavbarProps) {
@@ -22,13 +23,30 @@ export function Navbar({ roomName, userDisplayName, isHost }: NavbarProps) {
                     </Link>
 
                     {roomName && (
-                        <div className="hidden md:flex items-center gap-3 pl-6 border-l border-white/10">
-                            <h2 className="text-sm font-bold text-white truncate max-w-[200px]">{roomName}</h2>
+                        <div className="hidden md:flex flex-col items-start pl-6 border-l border-white/10">
+                            <h2 className="text-sm font-bold text-white truncate max-w-[200px] leading-tight" title={roomName}>
+                                {roomName}
+                            </h2>
+                            <div className="flex items-center gap-1 mt-0.5">
+                                <span className="text-[10px] font-mono text-slate-500 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">
+                                    ROOM ID
+                                </span>
+                            </div>
                         </div>
                     )}
                 </div>
 
-                <div className="flex items-center gap-3 sm:gap-6">
+                <div className="flex items-center gap-3 sm:gap-4">
+                    {onShare && (
+                        <button
+                            onClick={onShare}
+                            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-xs font-semibold text-slate-300 hover:text-white"
+                        >
+                            <Share2 className="h-3.5 w-3.5" />
+                            Share
+                        </button>
+                    )}
+
                     {userDisplayName ? (
                         <>
                             <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full border border-white/5">
